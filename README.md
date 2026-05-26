@@ -1,4 +1,4 @@
-# Aura B2B - Marketplace Mayorista Inteligente
+# (Nombre Pagina) - Marketplace Mayorista Inteligente
 
 Aura B2B es una plataforma web de comercio al por mayor (B2B/B2C) diseñada para agilizar y optimizar la relación comercial entre Proveedores (Empresas), Vendedores Freelance y Comercios Locales (Tenderos).
 
