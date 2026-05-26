@@ -2,7 +2,7 @@
 
 Aura B2B es una plataforma web de comercio al por mayor (B2B/B2C) diseñada para agilizar y optimizar la relación comercial entre Proveedores (Empresas), Vendedores Freelance y Comercios Locales (Tenderos).
 
-## 🛠️ Pila Tecnológica (Stack)
+## Pila Tecnológica (Stack)
 
 Para garantizar consistencia en las transacciones, velocidad de desarrollo y una excelente experiencia visual, el proyecto utiliza:
 
@@ -14,7 +14,7 @@ Para garantizar consistencia en las transacciones, velocidad de desarrollo y una
 
 ---
 
-## 🚀 Instrucciones para Iniciar el Proyecto
+## Instrucciones para Iniciar el Proyecto
 
 Sigue estos pasos para configurar y ejecutar el proyecto en tu entorno local:
 
@@ -57,7 +57,7 @@ La aplicación estará disponible en [http://localhost:3000](http://localhost:30
 
 ---
 
-## 💡 Recomendaciones de Desarrollo
+## Recomendaciones de Desarrollo
 
 - **Consistencia en Estilos**: Evita instalar frameworks de CSS utilitario como Tailwind CSS. Utiliza el sistema de variables de `src/app/globals.css` para crear componentes consistentes con la guía visual premium.
 - **Flujo de Base de Datos**: Cada vez que realices cambios en el archivo `prisma/schema.prisma`, asegúrate de correr `npx prisma generate` para actualizar los tipos autocompletados en el editor.
@@ -65,7 +65,7 @@ La aplicación estará disponible en [http://localhost:3000](http://localhost:30
 
 ---
 
-## 📄 Documentación Adicional
+## Documentación Adicional
 Puedes encontrar más detalles sobre el diseño técnico y del negocio en la carpeta `docs/`:
-- 🛠️ [Especificación de Requisitos](docs/requisitos_del_proyecto.md)
-- 📋 [Plan de Implementación](docs/plan_de_implementacion.md)
+- [Especificación de Requisitos](docs/requisitos_del_proyecto.md)
+- [Plan de Implementación](docs/plan_de_implementacion.md)

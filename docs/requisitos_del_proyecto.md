@@ -61,9 +61,9 @@ Esta tabla resume cómo interactúa cada rol con las funciones principales del s
 
 | Módulo/Acción | Empresa (Proveedor) | Vendedor Freelance | Tendero (Cliente) | Admin. Plataforma |
 | :--- | :---: | :---: | :---: | :---: |
-| **Ver catálogo** | ✔️ | ✔️ | ✔️ | ✔️ |
-| **Comprar / Hacer pedido** | ❌ | ✔️ (Para terceros) | ✔️ | ❌ |
-| **Definir monto mínimo** | ✔️ | ❌ | ❌ | ✔️ |
-| **Aprobar exámenes/tests** | ✔️ (Crea el test) | ✔️ (Rinde el test) | ❌ | ✔️ |
-| **Pagar suscripción/comisión** | ✔️ | ❌ | ❌ | ✔️ (Recibe pago) |
-| **Confirmar entrega** | ✔️ (Despachador) | ❌ | ✔️ | ❌ |
+| **Ver catálogo** | Sí | Sí | Sí | Sí |
+| **Comprar / Hacer pedido** | No | Sí (Para terceros) | Sí | No |
+| **Definir monto mínimo** | Sí | No | No | Sí |
+| **Aprobar exámenes/tests** | Sí (Crea el test) | Sí (Rinde el test) | No | Sí |
+| **Pagar suscripción/comisión** | Sí | No | No | Sí (Recibe pago) |
+| **Confirmar entrega** | Sí (Despachador) | No | Sí | No |

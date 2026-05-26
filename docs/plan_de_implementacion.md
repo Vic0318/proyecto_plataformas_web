@@ -2,19 +2,19 @@
 
 Este documento describe la arquitectura elegida, el diseño de la base de datos y los próximos pasos para construir la aplicación web del marketplace, basándose en los Requisitos Funcionales (RF) y No Funcionales (RNF) del proyecto.
 
-## 🛠️ Pila Tecnológica Elegida (Stack)
+## Pila Tecnológica Elegida (Stack)
 
 Tras evaluar las necesidades del proyecto, se ha acordado utilizar las siguientes tecnologías:
 - **Framework**: **Next.js** (React) por su capacidad de unificar frontend y backend (API Routes) en un solo repositorio, evitando problemas de CORS y acelerando el desarrollo.
 - **Base de Datos**: **PostgreSQL** por su robustez, soporte de transacciones ACID nativas (esencial para evitar ventas dobles de stock en tiempo real) y facilidad para modelar relaciones.
 - **ORM (Object-Relational Mapping)**: **Prisma ORM** para interactuar con PostgreSQL de manera tipada y sencilla desde Next.js.
-- **Estilos**: **Vanilla CSS** (CSS puro) utilizando variables CSS globales para lograr un diseño premium, responsive y personalizado de alto nivel sin ad-hoc utilities.
+- **Estilos**: **Vanilla CSS (CSS puro)** utilizando variables CSS globales para lograr un diseño premium, responsive y personalizado de alto nivel sin ad-hoc utilities.
 - **Autenticación**: **NextAuth.js** para gestionar el inicio de sesión y el control de accesos basado en roles (Empresa, Freelance, Tendero, Admin).
 - **Pasarela de Pagos**: **Stripe** (u otra pasarela compatible con PCI-DSS) integrada de forma segura a nivel de servidor.
 
 ---
 
-## 📁 Estructura y Esquema de Base de Datos (Prisma Schema)
+## Estructura y Esquema de Base de Datos (Prisma Schema)
 
 Definiremos el esquema relacional con las siguientes entidades principales:
 1. **User**: Roles (`ADMIN`, `EMPRESA`, `VENDEDOR_FREELANCE`, `TENDERO`), email, contraseña encriptada.
@@ -28,7 +28,7 @@ Definiremos el esquema relacional con las siguientes entidades principales:
 
 ---
 
-## 🚀 Plan de Trabajo por Fases
+## Plan de Trabajo por Fases
 
 ### Fase 1: Inicialización y Documentación
 1. Guardar y actualizar los documentos de diseño (`requisitos_del_proyecto.md` y `plan_de_implementacion.md`) en la carpeta `docs/` del repositorio local.
