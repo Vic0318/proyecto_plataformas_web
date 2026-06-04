@@ -186,7 +186,7 @@ Los requisitos no funcionales (RNF) definen las restricciones de rendimiento, us
 \textbf{RNF3.1} & \textbf{Seguridad Transaccional:} Cumplimiento estricto de la norma PCI-DSS para transacciones mediante cifrado en Stripe. \\
 \textbf{RNF3.2} & \textbf{Protección de Datos:} Cifrado irreversible (hashing con bcrypt) de credenciales del usuario en la persistencia. \\
 \textbf{RNF4.1} & \textbf{Tiempo Real:} Actualización de inventario con latencia menor a 1.5 segundos ante transacciones concurrentes. \\
-\textbf{RNF4.2} & \textbf{Escalabilidad:} El esquema relacional PostgreSQL y Prisma deben diseñarse bajo estándares que permitan una transición directa a APIs móviles. \\
+\textbf{RNF4.2} & \textbf{Escalabilidad:} El esquema relacional de PostgreSQL y los modelos de Django ORM deben diseñarse bajo estándares que permitan una transición directa a APIs móviles. \\
 \bottomrule
 \end{tabular}
 \caption{Matriz de Requisitos No Funcionales del Sistema.}
@@ -321,29 +321,53 @@ El esquema físico propuesto aprovecha entornos especializados para frontend y b
 \end{itemize}
 
 \section{Prototipo de pantallas no funcional}
-\textit{Nota: Los prototipos de interfaz se encuentran actualmente en fase de diseño y desarrollo activo.}
 
-El prototipo de interfaz gráfica prioriza la simplicidad y el contraste visual para contrarrestar el analfabetismo digital de los pequeños minoristas:
+El diseño de la interfaz gráfica prioriza la sencillez, la legibilidad y la experiencia visual premium (con un esquema de colores oscuro, tipografía legible y microinteracciones claras) para reducir la fricción digital en los minoristas y ofrecer herramientas eficientes a las empresas y vendedores. A continuación, se detallan los prototipos de pantalla desarrollados para cada flujo operativo:
 
-\begin{enumerate}
-    \item \textbf{Pantalla de Catálogo Mayorista (Vista Tendero):}
-    \begin{itemize}
-        \item \textbf{Estructura:} Encabezado superior persistente con el total acumulado de la compra y un indicador visual de barra de progreso que indica si ya se superó el monto mínimo (ej. ``Faltan \$15 para llegar al mínimo'').
-        \item \textbf{Lista de Productos:} Grid de tarjetas anchas en formato vertical con fotos nítidas. Cada tarjeta posee un botón flotante verde grande para añadir y otro rojo para restar cantidades, con etiquetas de stock disponible en color verde brillante (stock alto) o naranja (stock bajo).
-    \end{itemize}
-    
-    \item \textbf{Pantalla de Registro de Pedidos (Vista Vendedor Freelance):}
-    \begin{itemize}
-        \item \textbf{Estructura:} Menú lateral con accesos directos a ``Clientes'', ``Nuevo Pedido'', ``Comisiones'' e ``Historial''.
-        \item \textbf{Formulario Dinámico:} Selector rápido para buscar el comercio local (auto-completado). El vendedor selecciona los productos recorriendo el catálogo optimizado y el sistema calcula la comisión proyectada en tiempo real antes de presionar ``Confirmar Orden''.
-    \end{itemize}
+\subsection{Flujo de la Tienda Online (Vista del Tendero / Cliente)}
+Representa la experiencia de compra directa adaptada para el tendero local, facilitando un proceso sin fricciones y guiado en todo momento.
 
-    \item \textbf{Panel de Certificaciones (Vista Vendedor Freelance):}
-    \begin{itemize}
-        \item \textbf{Estructura:} Listado de cursos y exámenes disponibles organizados por empresa.
-        \item \textbf{Flujo del Examen:} Interfaz tipo cuestionario con preguntas paso a paso para evitar la sobrecarga visual, mostrando un cronómetro flotante e indicaciones sencillas al finalizar que notifican el puntaje obtenido y el estado de habilitación de forma instantánea.
-    \end{itemize}
-\end{enumerate}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\textwidth]{proto_tienda_catalogo.png}
+\caption{Prototipo 1: Catálogo de Productos y barra de progreso del monto mínimo de compra.}
+\label{fig:proto_catalogo}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\textwidth]{proto_tienda_pago.png}
+\caption{Prototipo 2: Pantalla de finalización de compra (Checkout) con opciones de pago del 50\% o 100\%.}
+\label{fig:proto_pago}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\textwidth]{proto_tienda_pedido.png}
+\caption{Prototipo 3: Rastreo activo de pedidos y confirmación de recepción en tiempo real.}
+\label{fig:proto_pedido}
+\end{figure}
+
+\newpage
+\subsection{Flujo del Vendedor Freelance (Dashboard de Ventas)}
+Consola de administración donde el vendedor freelance registra sus pedidos a nombre de tenderos, valida sus comisiones y visualiza el estado de sus certificaciones activas.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\textwidth]{proto_dashboard_freelance.png}
+\caption{Prototipo 4: Dashboard general del Agente Freelance con comisiones y estado de certificaciones.}
+\label{fig:proto_dashboard}
+\end{figure}
+
+\subsection{Flujo de la Empresa Proveedora (Panel de Control de Distribución)}
+Panel administrativo para la empresa donde se configura el monto mínimo de compra, se confirman pedidos y se monitorean las alertas automáticas de stock.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.85\textwidth]{proto_panel_proveedor.png}
+\caption{Prototipo 5: Panel de Control de Administración del Proveedor.}
+\label{fig:proto_panel}
+\end{figure}
 
 % --- Bibliografía ---
 \begin{thebibliography}{9}
