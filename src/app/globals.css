@@ -1,50 +1,86 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
+/* Default Light Theme - Minimalist SaaS Design System */
 :root {
   /* Fonts */
   --font-sans: 'Plus Jakarta Sans', sans-serif;
   --font-display: 'Outfit', sans-serif;
 
-  /* Color Palette - Premium HSL Slate & Indigo */
-  --bg-primary: #0a0c10;
-  --bg-secondary: #121620;
-  --bg-tertiary: #1a1f2e;
-  --bg-glass: rgba(18, 22, 32, 0.7);
-  --border-glass: rgba(255, 255, 255, 0.06);
-  --border-glass-hover: rgba(255, 255, 255, 0.12);
+  /* Clean Palette */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.9);
   
-  /* Primary & Accent Colors */
-  --primary: #5f5dec;
-  --primary-glow: rgba(95, 93, 236, 0.15);
-  --primary-hover: #4e4cdb;
-  --secondary: #10b981; /* Emerald for money/commissions */
-  --secondary-glow: rgba(16, 185, 129, 0.15);
-  --accent: #f59e0b; /* Amber/Orange for warnings/stars */
+  --border-color: #e2e8f0;
+  --border-light: #f1f5f9;
+  --border-hover: #cbd5e1;
+  
+  /* Brand Accent Colors */
+  --primary: #fd4d01; /* ISBEN Signature Accent */
+  --primary-hover: #e04400;
+  --primary-light: rgba(253, 77, 1, 0.08);
+
+  /* Ambient Blurred Orange Glow Colors (Light Mode - Enhanced Visibility) */
+  --glow-orange: rgba(253, 77, 1, 0.38);
+  --glow-blur-radius: 80px;
+
+  --secondary: #0f172a; /* Deep Navy */
+  --secondary-hover: #1e293b;
+
+  --accent-teal: #0d9488;
+  --accent-amber: #f59e0b;
   --danger: #ef4444;
-  --danger-glow: rgba(239, 68, 68, 0.15);
 
   /* Text Colors */
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #64748b;
-  
-  /* Layout Metrics */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
+  --text-inverse: #ffffff;
+
+  /* Layout Metrics & Elevation */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
   
-  --shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 16px 40px -8px rgba(0, 0, 0, 0.7);
-  --shadow-glow: 0 0 20px rgba(95, 93, 236, 0.2);
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 20px 40px -10px rgba(15, 23, 42, 0.12);
 
   /* Transitions */
-  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
 }
 
-/* Base Reset */
+/* Dark Theme Override */
+[data-theme="dark"] {
+  --bg-primary: #0b0f19;
+  --bg-secondary: #131926;
+  --bg-tertiary: #1e2638;
+  --bg-glass: rgba(19, 25, 38, 0.9);
+
+  --border-color: #273349;
+  --border-light: #1e2638;
+  --border-hover: #3b4c6b;
+
+  /* Ambient Blurred Orange Glow Colors (Dark Mode - Enhanced Visibility) */
+  --glow-orange: rgba(253, 77, 1, 0.55);
+  --glow-blur-radius: 100px;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
+}
+
+/* Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -59,96 +95,142 @@ html, body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
-  overflow-x: hidden;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
-/* Premium Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* Glassmorphism Classes */
-.glass-panel {
-  background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  transition: border-color var(--transition-normal), transform var(--transition-normal);
-}
-
-.glass-panel:hover {
-  border-color: var(--border-glass-hover);
-}
-
-/* Layout Container */
+/* Containers */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-/* Glow Effect */
-.glow-effect {
+/* Ambient Orange Glow Effect Container */
+.logo-glow-container {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
 }
 
-.glow-effect::after {
+.logo-glow-container::before {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  box-shadow: var(--shadow-glow);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
+  inset: -30px;
+  background: radial-gradient(circle, var(--glow-orange) 0%, rgba(253, 77, 1, 0.05) 65%, rgba(253, 77, 1, 0) 80%);
+  filter: blur(var(--glow-blur-radius));
+  border-radius: 50%;
+  z-index: 0;
   pointer-events: none;
 }
 
-.glow-effect:hover::after {
-  opacity: 1;
+.logo-glow-container img {
+  position: relative;
+  z-index: 1;
 }
 
-/* Responsive Grid Helper */
-.grid-auto {
+/* Cards & Surface Utilities */
+.card-clean {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+}
+
+.card-clean:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.35rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  box-shadow: 0 2px 8px rgba(253, 77, 1, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(253, 77, 1, 0.35);
+}
+
+.btn-dark {
+  background-color: var(--secondary);
+  color: #ffffff;
+}
+
+.btn-dark:hover {
+  background-color: var(--secondary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.btn-outline:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-hover);
+}
+
+/* Badges */
+.badge-clean {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+
+.badge-clean-primary {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.badge-clean-success {
+  background: rgba(13, 148, 136, 0.1);
+  color: var(--accent-teal);
+}
+
+.badge-clean-neutral {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+/* Grid layout */
+.grid-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
-}
-
-/* Typography styles */
-.gradient-text {
-  background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.gradient-accent {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }

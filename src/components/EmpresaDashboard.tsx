@@ -1,0 +1,301 @@
+"use client";
+
+import React, { useState } from "react";
+import { Product } from "./TenderoView";
+import {
+  IconFactory,
+  IconPlus,
+  IconAlertTriangle,
+  IconCheck,
+  IconPackage
+} from "@/components/Icons";
+
+interface EmpresaDashboardProps {
+  products: Product[];
+  minOrder: number;
+  onUpdateMinOrder: (newMin: number) => void;
+  onAddProduct: (newProd: Omit<Product, "id">) => void;
+}
+
+export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
+  products,
+  minOrder,
+  onUpdateMinOrder,
+  onAddProduct,
+}) => {
+  const [minOrderInput, setMinOrderInput] = useState<number>(minOrder);
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+
+  // New product form state
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("Abarrotes");
+  const [price, setPrice] = useState(25.0);
+  const [unitPack, setUnitPack] = useState("Paca de 12 unidades");
+  const [stock, setStock] = useState(100);
+
+  const [tests, setTests] = useState([
+    { id: 1, title: "Certificación Manejo de Cadena de Frío", company: "Lácteos del Sur", passScore: "80%" },
+    { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", passScore: "90%" },
+  ]);
+  const [newTestTitle, setNewTestTitle] = useState("");
+
+  const handleSaveMinOrder = () => {
+    onUpdateMinOrder(minOrderInput);
+    alert(`Monto mínimo de compra actualizado a $${minOrderInput} USD`);
+  };
+
+  const handleCreateProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    onAddProduct({
+      name,
+      category,
+      pricePerUnit: Number(price),
+      unitPackName: unitPack,
+      stock: Number(stock),
+      image: "/groceries_pack.png",
+      companyName: "Distribuidora Mayorista ISBEN",
+    });
+    setShowAddModal(false);
+    setName("");
+  };
+
+  const handleCreateTest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTestTitle) return;
+    setTests([...tests, { id: Date.now(), title: newTestTitle, company: "Distribuidora Mayorista ISBEN", passScore: "85%" }]);
+    setNewTestTitle("");
+  };
+
+  const lowStockCount = products.filter((p) => p.stock < 20).length;
+
+  return (
+    <div style={{ padding: "2rem 0 4rem" }}>
+      {/* Top Welcome & Summary Header */}
+      <div
+        className="card-clean"
+        style={{
+          padding: "2rem",
+          marginBottom: "2rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "1.5rem"
+        }}
+      >
+        <div>
+          <span className="badge-clean badge-clean-neutral" style={{ marginBottom: "0.5rem", gap: "6px" }}>
+            <IconFactory size={14} /> Panel de Empresa y Proveedor
+          </span>
+          <h2 style={{ fontSize: "1.8rem", fontWeight: 800 }}>Gestión de Inventarios y Perfiles Calificados</h2>
+          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+            Configura reglas comerciales, monitorea stock en tiempo real y certifica vendedores freelance.
+          </p>
+        </div>
+
+        {/* Quick KPI Stats */}
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <div style={{ background: "var(--bg-tertiary)", padding: "0.75rem 1.25rem", borderRadius: "var(--radius-md)", textAlign: "center" }}>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>Total Productos</div>
+            <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--primary)" }}>{products.length}</div>
+          </div>
+          <div style={{ background: "var(--bg-tertiary)", padding: "0.75rem 1.25rem", borderRadius: "var(--radius-md)", textAlign: "center" }}>
+            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>Stock Bajo</div>
+            <div style={{ fontSize: "1.6rem", fontWeight: 800, color: lowStockCount > 0 ? "var(--danger)" : "var(--accent-teal)" }}>
+              {lowStockCount}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main 2-Column Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem", marginBottom: "2rem" }}>
+        
+        {/* Configuración de Monto Mínimo de Pedido (RF3.3) */}
+        <div className="card-clean" style={{ padding: "1.5rem" }}>
+          <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+            Monto Mínimo de Compra (RF3.3)
+          </h3>
+          <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+            Establece el límite mínimo en dólares que los tenderos deben alcanzar para procesar un pedido mayorista.
+          </p>
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+            <div style={{ position: "relative", flex: 1 }}>
+              <span style={{ position: "absolute", left: "12px", top: "8px", fontWeight: 700, color: "var(--text-muted)" }}>$</span>
+              <input
+                type="number"
+                value={minOrderInput}
+                onChange={(e) => setMinOrderInput(Number(e.target.value))}
+                style={{
+                  width: "100%",
+                  padding: "0.55rem 0.55rem 0.55rem 2rem",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--border-color)",
+                  background: "var(--bg-tertiary)",
+                  color: "var(--text-primary)",
+                  fontWeight: 700,
+                  fontSize: "1rem"
+                }}
+              />
+            </div>
+            <button onClick={handleSaveMinOrder} className="btn btn-primary">
+              Guardar
+            </button>
+          </div>
+        </div>
+
+        {/* Conexión ERP / Sistema Contable (RF2.4) */}
+        <div className="card-clean" style={{ padding: "1.5rem" }}>
+          <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+            Integración ERP y Sistema Contable (RF2.4)
+          </h3>
+          <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+            Sincronización automática de inventario y facturas vía API REST con tu sistema externo (ej. SAP, QuickBooks).
+          </p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(13, 148, 136, 0.08)", border: "1px solid rgba(13, 148, 136, 0.2)", padding: "0.65rem 1rem", borderRadius: "var(--radius-md)" }}>
+            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--accent-teal)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <IconCheck size={16} /> API REST Conectada (En línea)
+            </span>
+            <button className="btn btn-outline" style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}>Configurar API</button>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Product Catalog Management */}
+      <div className="card-clean" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Catálogo e Inventario Mayorista (RF2.1 / RF2.2)</h3>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Supervisa las existencias y recibe alertas de stock bajo</p>
+          </div>
+          <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ gap: "6px" }}>
+            <IconPlus size={16} /> Nuevo Producto
+          </button>
+        </div>
+
+        {/* Products Table */}
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-muted)", fontSize: "0.8rem" }}>
+                <th style={{ padding: "0.75rem" }}>Producto</th>
+                <th style={{ padding: "0.75rem" }}>Categoría</th>
+                <th style={{ padding: "0.75rem" }}>Presentación</th>
+                <th style={{ padding: "0.75rem" }}>Precio Mayorista</th>
+                <th style={{ padding: "0.75rem" }}>Stock Disponible</th>
+                <th style={{ padding: "0.75rem" }}>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((p) => (
+                <tr key={p.id} style={{ borderBottom: "1px solid var(--border-color)", fontSize: "0.9rem" }}>
+                  <td style={{ padding: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <img src={p.image} alt={p.name} style={{ width: "36px", height: "36px", borderRadius: "6px", objectFit: "cover" }} />
+                    {p.name}
+                  </td>
+                  <td style={{ padding: "0.75rem" }}>{p.category}</td>
+                  <td style={{ padding: "0.75rem" }}>{p.unitPackName}</td>
+                  <td style={{ padding: "0.75rem", fontWeight: 700, color: "var(--primary)" }}>${p.pricePerUnit.toFixed(2)}</td>
+                  <td style={{ padding: "0.75rem", fontWeight: 700 }}>{p.stock} unidades</td>
+                  <td style={{ padding: "0.75rem" }}>
+                    {p.stock < 20 ? (
+                      <span className="badge-clean badge-clean-primary" style={{ gap: "4px" }}>
+                        <IconAlertTriangle size={14} /> Stock Bajo (RF2.3)
+                      </span>
+                    ) : (
+                      <span className="badge-clean badge-clean-success" style={{ gap: "4px" }}>
+                        <IconCheck size={14} /> Óptimo
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Module: Certification Tests for Freelancers (RF1.2 / RF1.3) */}
+      <div className="card-clean" style={{ padding: "1.5rem" }}>
+        <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>
+          Evaluación de Perfiles Calificados para Freelancers (RF1.2 / RF1.3)
+        </h3>
+        <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.25rem" }}>
+          Las empresas que requieren perfiles certificados pueden crear evaluaciones obligatorias aquí.
+        </p>
+
+        <form onSubmit={handleCreateTest} style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem" }}>
+          <input
+            type="text"
+            placeholder="Título de la nueva prueba o curso de certificación..."
+            value={newTestTitle}
+            onChange={(e) => setNewTestTitle(e.target.value)}
+            style={{
+              flex: 1,
+              padding: "0.6rem 1rem",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border-color)",
+              background: "var(--bg-tertiary)",
+              color: "var(--text-primary)",
+              fontSize: "0.9rem"
+            }}
+          />
+          <button type="submit" className="btn btn-outline">Crear Evaluación</button>
+        </form>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
+          {tests.map((test) => (
+            <div key={test.id} style={{ background: "var(--bg-tertiary)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)" }}>
+              <div style={{ fontWeight: 700, marginBottom: "0.25rem", fontSize: "0.9rem" }}>{test.title}</div>
+              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Puntaje mínimo requerido: {test.passScore}</div>
+              <span className="badge-clean badge-clean-primary" style={{ marginTop: "0.5rem" }}>Activo</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Add Product Modal */}
+      {showAddModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+          <div className="card-clean" style={{ width: "90%", maxWidth: "480px", padding: "2rem" }}>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "1rem" }}>Agregar Producto Mayorista</h3>
+            <form onSubmit={handleCreateProduct} style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Nombre del Producto</label>
+                <input required type="text" value={name} onChange={(e) => setName(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Categoría</label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}>
+                  <option value="Abarrotes">Abarrotes</option>
+                  <option value="Bebidas">Bebidas</option>
+                  <option value="Limpieza">Limpieza</option>
+                  <option value="Cuidado Personal">Cuidado Personal</option>
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Precio ($ USD)</label>
+                  <input required type="number" step="0.01" value={price} onChange={(e) => setPrice(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Stock Inicial</label>
+                  <input required type="number" value={stock} onChange={(e) => setStock(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Presentación de Paca/Caja</label>
+                <input required type="text" value={unitPack} onChange={(e) => setUnitPack(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-outline" style={{ flex: 1 }}>Cancelar</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Guardar Producto</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
