@@ -1,71 +1,110 @@
-# (Nombre Pagina) - Marketplace Mayorista Inteligente
+# ISBEN - Marketplace Mayorista Inteligente
 
-" " es una plataforma web de comercio al por mayor (B2B/B2C) diseñada para agilizar y optimizar la relación comercial entre Proveedores (Empresas), Vendedores Freelance y Comercios Locales (Tenderos).
-
-## Pila Tecnológica (Stack)
-
-Para garantizar consistencia en las transacciones, velocidad de desarrollo y una excelente experiencia visual, el proyecto utiliza:
-
-- **Frontend & Backend (API)**: [Next.js](https://nextjs.org/) (React) utilizando el **App Router** y **TypeScript** para un código seguro y tipado.
-- **Base de Datos**: [PostgreSQL](https://www.postgresql.org/), ideal para asegurar la integridad transaccional de inventarios y cálculos de comisiones (ACID).
-- **ORM**: [Prisma ORM](https://www.prisma.io/) para la interacción segura y tipada con la base de datos.
-- **Estilos**: **Vanilla CSS (CSS puro)** organizado mediante variables y tokens globales para asegurar una interfaz altamente personalizada, responsive y de estética Premium.
-- **Autenticación**: [NextAuth.js](https://next-auth.js.org/) para control de acceso y manejo de roles del sistema.
+**ISBEN** es una plataforma web de comercio al por mayor (B2B/B2C) diseñada para agilizar y optimizar la relación comercial entre **Empresas Proveedoras**, **Vendedores Freelance** y **Comercios Locales (Tenderos)**.
 
 ---
 
-## Instrucciones para Iniciar el Proyecto
+## 🛠️ Pila Tecnológica (Stack)
 
-Sigue estos pasos para configurar y ejecutar el proyecto en tu entorno local:
+- **Frontend**: [Next.js](https://nextjs.org/) (React 19) + **TypeScript**
+- **Estilos**: **Vanilla CSS (CSS puro)** con variables globales para diseño adaptativo y soporte de modo claro/oscuro
+- **Iconografía**: Lucide React
+- **Backend (Python)**: [Django](https://www.djangoproject.com/) (ubicado en la carpeta `/backend`) con base de datos SQLite
+
+---
+
+## 🚀 Instrucciones para Abrir y Ejecutar el Proyecto
+
+Sigue estos pasos en tu computadora si acabas de clonar el repositorio:
 
 ### 1. Requisitos Previos
-Asegúrate de tener instalado:
-- **Node.js** (versión 20.x o superior recomendada).
-- Una instancia de **PostgreSQL** activa (local, mediante Docker, o en la nube en plataformas como Supabase o Neon.tech).
+Asegúrate de tener instalado en tu computadora:
+- **Node.js** (versión 18.x o superior recomendada): [Descargar Node.js](https://nodejs.org/)
+- **Git**: [Descargar Git](https://git-scm.com/)
+- *(Opcional)* **Python 3.10+** (solo necesario si deseas ejecutar el servidor backend de Django).
 
-### 2. Clonar e Instalar Dependencias
-Clona el repositorio en tu máquina local e ingresa a la carpeta del proyecto:
+---
+
+### 2. Clonar el Repositorio
+Abre tu terminal (Command Prompt, PowerShell o Git Bash) y ejecuta:
+
 ```bash
 git clone https://github.com/Vic0318/proyecto_plataformas_web.git
 cd proyecto_plataformas_web
-npm install
 ```
-
-### 3. Configurar Variables de Entorno
-Crea un archivo llamado `.env` en la raíz del proyecto y define la URL de tu base de datos de PostgreSQL:
-```env
-DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/aura_b2b?schema=public"
-NEXTAUTH_SECRET="un_secreto_muy_seguro_y_largo_aqui"
-```
-
-### 4. Configurar la Base de Datos con Prisma
-Aplica el esquema y ejecuta las migraciones iniciales en PostgreSQL:
-```bash
-npx prisma db push
-```
-*(Opcional)* Si hay datos de prueba (semilla) configurados, puedes poblar la base de datos ejecutando:
-```bash
-npx prisma db seed
-```
-
-### 5. Iniciar el Servidor de Desarrollo
-Corre el proyecto localmente:
-```bash
-npm run dev
-```
-La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## Recomendaciones de Desarrollo
+### 3. Ejecutar el Frontend (Next.js)
 
-- **Consistencia en Estilos**: Evita instalar frameworks de CSS utilitario como Tailwind CSS. Utiliza el sistema de variables de `src/app/globals.css` para crear componentes consistentes con la guía visual premium.
-- **Flujo de Base de Datos**: Cada vez que realices cambios en el archivo `prisma/schema.prisma`, asegúrate de correr `npx prisma generate` para actualizar los tipos autocompletados en el editor.
-- **Roles y Permisos**: Siempre verifica los permisos en el backend al crear APIs; recuerda que los Tenderos y Vendedores Freelance tienen capacidades y vistas distintas.
+1. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
+
+2. **Iniciar el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Abrir en el navegador:**
+   Ingresa a [http://localhost:3000](http://localhost:3000) en tu navegador web.
 
 ---
 
-## Documentación Adicional
-Puedes encontrar más detalles sobre el diseño técnico y del negocio en la carpeta `docs/`:
+### 4. (Opcional) Ejecutar el Backend (Django)
+
+Si requieres ejecutar los servicios de API o administración del backend en Python:
+
+1. Ingresa a la carpeta del backend:
+   ```bash
+   cd backend
+   ```
+2. *(Opcional)* Activa el entorno virtual existente o crea uno nuevo:
+   - **Windows:**
+     ```powershell
+     venv\Scripts\activate
+     ```
+   - **Mac / Linux:**
+     ```bash
+     source venv/bin/activate
+     ```
+3. Ejecuta el servidor de Django:
+   ```bash
+   python manage.py runserver
+   ```
+4. El servidor backend estará activo en `http://127.0.0.1:8000/`.
+
+---
+
+## 👥 Roles de Usuario Disponibles en la Demo
+
+Dentro de la aplicación puedes interactuar con los siguientes roles del sistema:
+
+- 🛒 **Tendero (Cliente)**: Explora el catálogo mayorista, agrega productos al carrito y valida compras según el pedido mínimo configurado.
+- 🏢 **Empresa (Proveedor)**: Gestiona catálogo de productos, monitorea niveles de stock/inventario y define reglas comerciales.
+- 💼 **Vendedor Freelance**: Revisa empresas con perfiles calificados, comisiones asociadas y tests de certificación.
+- ⚡ **Administrador**: Vista global de métricas del sistema, usuarios registrados e historial de transacciones.
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+proyecto_plataformas_web/
+├── backend/            # Proyecto Django (API backend, base de datos SQLite)
+├── docs/               # Documentación técnica, requisitos y planes
+├── public/             # Assets e imágenes estáticas (Logos de ISBEN)
+├── src/
+│   ├── app/            # Next.js App Router (layout.tsx, globals.css, page.tsx)
+│   └── components/     # Componentes de la interfaz de usuario
+├── package.json        # Configuración del proyecto y dependencias
+└── README.md           # Guía principal del proyecto
+```
+
+---
+
+## 📄 Licencia y Documentación Adicional
+Puedes encontrar más detalles sobre los requisitos y el plan de implementación en la carpeta [`docs/`](docs/):
 - [Especificación de Requisitos](docs/requisitos_del_proyecto.md)
 - [Plan de Implementación](docs/plan_de_implementacion.md)
