@@ -54,11 +54,29 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   const [editingTest, setEditingTest] = useState<{ id: number; title: string } | null>(null);
   const [editTestTitle, setEditTestTitle] = useState("");
 
+  // Confirm delete states
+  const [confirmDeleteProduct, setConfirmDeleteProduct] = useState<Product | null>(null);
+  const [confirmDeleteTest, setConfirmDeleteTest] = useState<{ id: number; title: string } | null>(null);
+
   const [tests, setTests] = useState([
     { id: 1, title: "Certificación Manejo de Cadena de Frío", company: "Lácteos del Sur", passScore: "80%" },
     { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", passScore: "90%" },
   ]);
   const [newTestTitle, setNewTestTitle] = useState("");
+
+  // Retry requests state
+  const [retryRequests, setRetryRequests] = useState([
+    { id: 101, testId: 2, testTitle: "Test de Conocimiento de Productos Farmacéuticos", freelancer: "Carlos Vendedor Freelance", date: "26/07/2026", status: "Pendiente" }
+  ]);
+
+  const handleApproveRetry = (reqId: number) => {
+    setRetryRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: "Aprobado" } : r));
+  };
+
+  const handleRejectRetry = (reqId: number) => {
+    setRetryRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: "Rechazado" } : r));
+  };
+
 
   // Helper: token de autenticacion
   const getAuthHeaders = (): Record<string, string> => {
@@ -361,7 +379,7 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
                   </td>
                   <td style={{ padding: "0.75rem", textAlign: "right" }}>
                     <button onClick={() => startEdit(p)} className="btn btn-outline" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem", marginRight: "0.5rem" }}>Editar</button>
-                    <button onClick={() => onDeleteProduct(p.id)} className="btn btn-outline" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem", color: "var(--primary)", borderColor: "var(--primary)" }}>Eliminar</button>
+                    <button onClick={() => setConfirmDeleteProduct(p)} className="btn btn-outline" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem", color: "var(--primary)", borderColor: "var(--primary)" }}>Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -409,12 +427,72 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
                 <span className="badge-clean badge-clean-primary">Activo</span>
                 <div style={{ display: "flex", gap: "6px" }}>
                   <button onClick={() => startEditTest(test)} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}>Editar</button>
-                  <button onClick={() => handleDeleteTest(test.id)} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", color: "var(--primary)", borderColor: "var(--primary)" }}>Eliminar</button>
+                  <button onClick={() => setConfirmDeleteTest(test)} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", color: "var(--primary)", borderColor: "var(--primary)" }}>Eliminar</button>
                 </div>
               </div>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Module: Retry Requests for Tests */}
+      <div className="card-clean" style={{ padding: "1.5rem" }}>
+        <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>
+          Solicitudes de Reintento de Examen
+        </h3>
+        <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.25rem" }}>
+          Revisa y aprueba las solicitudes de freelancers que reprobaron y desean volver a intentar la evaluacion.
+        </p>
+
+        {retryRequests.length === 0 ? (
+          <div style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)", fontSize: "0.9rem", border: "1px dashed var(--border-color)", borderRadius: "var(--radius-md)" }}>
+            No hay solicitudes pendientes en este momento.
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-muted)", fontSize: "0.8rem" }}>
+                  <th style={{ padding: "0.75rem" }}>Freelancer</th>
+                  <th style={{ padding: "0.75rem" }}>Examen</th>
+                  <th style={{ padding: "0.75rem" }}>Fecha Solicitud</th>
+                  <th style={{ padding: "0.75rem" }}>Estado</th>
+                  <th style={{ padding: "0.75rem", textAlign: "right" }}>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {retryRequests.map((req) => (
+                  <tr key={req.id} style={{ borderBottom: "1px solid var(--border-color)", fontSize: "0.85rem" }}>
+                    <td style={{ padding: "0.75rem", fontWeight: 700 }}>{req.freelancer}</td>
+                    <td style={{ padding: "0.75rem" }}>{req.testTitle}</td>
+                    <td style={{ padding: "0.75rem", color: "var(--text-muted)" }}>{req.date}</td>
+                    <td style={{ padding: "0.75rem" }}>
+                      <span className={`badge-clean ${
+                        req.status === "Aprobado" ? "badge-clean-success" : 
+                        req.status === "Rechazado" ? "badge-clean-neutral" : 
+                        "badge-clean-primary"
+                      }`}>
+                        {req.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: "0.75rem", textAlign: "right", whiteSpace: "nowrap" }}>
+                      {req.status === "Pendiente" && (
+                        <>
+                          <button onClick={() => handleRejectRetry(req.id)} className="btn btn-outline" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", marginRight: "0.5rem" }}>
+                            Rechazar
+                          </button>
+                          <button onClick={() => handleApproveRetry(req.id)} className="btn btn-primary" style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem", background: "var(--primary)" }}>
+                            Aprobar Intento
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Add Product Modal */}
@@ -524,6 +602,76 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Guardar Cambios</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete Product Modal */}
+      {confirmDeleteProduct && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 250, padding: "1rem" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "420px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(249,115,22,0.12)", border: "2px solid rgba(249,115,22,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem", fontSize: "1.75rem" }}>
+              &#9888;
+            </div>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.5rem" }}>Confirmar Eliminacion</h3>
+            <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginBottom: "0.75rem", lineHeight: 1.6 }}>
+              Estas a punto de eliminar el siguiente producto del catalogo:
+            </p>
+            <div style={{ background: "var(--bg-tertiary)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-md)", padding: "0.75rem 1rem", marginBottom: "1.25rem", display: "flex", alignItems: "center", gap: "0.75rem", textAlign: "left" }}>
+              <img src={confirmDeleteProduct.image} alt={confirmDeleteProduct.name} style={{ width: "40px", height: "40px", borderRadius: "6px", objectFit: "cover", flexShrink: 0 }} />
+              <div>
+                <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{confirmDeleteProduct.name}</div>
+                <div style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>{confirmDeleteProduct.category} &mdash; ${confirmDeleteProduct.pricePerUnit.toFixed(2)} USD</div>
+              </div>
+            </div>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "1.5rem" }}>
+              Esta accion no se puede deshacer. El producto sera eliminado permanentemente.
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button onClick={() => setConfirmDeleteProduct(null)} className="btn btn-outline" style={{ flex: 1, padding: "0.75rem" }}>
+                Cancelar
+              </button>
+              <button
+                onClick={() => { onDeleteProduct(confirmDeleteProduct.id); setConfirmDeleteProduct(null); }}
+                className="btn btn-primary"
+                style={{ flex: 1, padding: "0.75rem" }}
+              >
+                Si, Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Delete Test Modal */}
+      {confirmDeleteTest && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 250, padding: "1rem" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "420px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(249,115,22,0.12)", border: "2px solid rgba(249,115,22,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem", fontSize: "1.75rem" }}>
+              &#9888;
+            </div>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.5rem" }}>Confirmar Eliminacion</h3>
+            <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginBottom: "0.75rem", lineHeight: 1.6 }}>
+              Estas a punto de eliminar la siguiente evaluacion de certificacion:
+            </p>
+            <div style={{ background: "var(--bg-tertiary)", border: "1px solid var(--border-color)", borderRadius: "var(--radius-md)", padding: "0.75rem 1rem", marginBottom: "1.25rem", textAlign: "left" }}>
+              <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{confirmDeleteTest.title}</div>
+            </div>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "1.5rem" }}>
+              Esta accion no se puede deshacer. Los resultados de los freelancers asociados tambien se perderan.
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button onClick={() => setConfirmDeleteTest(null)} className="btn btn-outline" style={{ flex: 1, padding: "0.75rem" }}>
+                Cancelar
+              </button>
+              <button
+                onClick={() => { handleDeleteTest(confirmDeleteTest.id); setConfirmDeleteTest(null); }}
+                className="btn btn-primary"
+                style={{ flex: 1, padding: "0.75rem" }}
+              >
+                Si, Eliminar
+              </button>
+            </div>
           </div>
         </div>
       )}

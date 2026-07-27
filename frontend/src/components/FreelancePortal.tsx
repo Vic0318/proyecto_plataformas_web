@@ -17,6 +17,7 @@ interface FreelancePortalProps {
   freelancerName?: string;
 }
 
+// Banco de preguntas por categoria tematica
 const testQuestions = [
   {
     id: 1,
@@ -37,8 +38,39 @@ const testQuestions = [
       { key: "C", text: "Venderlo con descuento para liquidar el stock rapido" }
     ],
     correctKey: "B"
+  },
+  {
+    id: 3,
+    question: "¿Que documento es obligatorio presentar al distribuidor al momento de recibir un pedido mayorista?",
+    options: [
+      { key: "A", text: "Solo el recibo de pago digital" },
+      { key: "B", text: "Nota de remision firmada por ambas partes" },
+      { key: "C", text: "No se requiere ningun documento si el pago ya fue confirmado" }
+    ],
+    correctKey: "B"
+  },
+  {
+    id: 4,
+    question: "¿Cual es la comision retenida del freelance hasta que el tendero confirme la entrega en la plataforma ISBEN?",
+    options: [
+      { key: "A", text: "Se libera inmediatamente al confirmar el pedido" },
+      { key: "B", text: "Se retiene hasta que el tendero confirme la entrega fisica del pedido" },
+      { key: "C", text: "Se retiene hasta 30 dias calendario independientemente de la entrega" }
+    ],
+    correctKey: "B"
+  },
+  {
+    id: 5,
+    question: "¿Cual de las siguientes es una buena practica al gestionar el inventario de un cliente tendero?",
+    options: [
+      { key: "A", text: "Registrar los pedidos solo cuando el cliente pide un reporte" },
+      { key: "B", text: "Monitorear el stock periodicamente y anticipar pedidos antes de que se agote" },
+      { key: "C", text: "Pedir siempre el maximo de stock sin importar la demanda del tendero" }
+    ],
+    correctKey: "B"
   }
 ];
+
 
 export const FreelancePortal: React.FC<FreelancePortalProps> = ({
   products,
@@ -118,6 +150,13 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
   const [takingTestId, setTakingTestId] = useState<number | null>(null);
   const [testAnswers, setTestAnswers] = useState<{ [qId: number]: string }>({});
   const [testError, setTestError] = useState<string | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [testResult, setTestResult] = useState<{
+    passed: boolean;
+    score: number;
+    total: number;
+    details: { question: string; yourAnswer: string; correctAnswer: string; correct: boolean }[];
+  } | null>(null);
 
   const handleQuickOrderClick = (productId: string) => {
     setSelectedProduct(productId);
@@ -517,16 +556,31 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                   <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{t.company}</div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <span className={`badge-clean ${t.status === "Aprobado" ? "badge-clean-success" : "badge-clean-neutral"}`}>
-                    {t.status === "Aprobado" ? <><IconCheck size={14} /> Aprobado</> : "Pendiente"}
+                  <span className={`badge-clean ${
+                    t.status === "Aprobado" ? "badge-clean-success" : 
+                    t.status === "Reintento Solicitado" ? "badge-clean-primary" : 
+                    "badge-clean-neutral"
+                  }`}>
+                    {t.status === "Aprobado" ? <><IconCheck size={14} /> Aprobado</> : 
+                     t.status === "Reintento Solicitado" ? "Reintento Solicitado" : 
+                     "Pendiente"}
                   </span>
-                  {t.status !== "Aprobado" && (
+                  {t.status === "Pendiente" && (
                     <button
                       onClick={() => { setTakingTestId(t.id); setTestAnswers({}); setTestError(null); }}
                       className="btn btn-outline"
                       style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
                     >
                       Rendir Examen
+                    </button>
+                  )}
+                  {t.status === "Reintento Solicitado" && (
+                    <button
+                      className="btn btn-outline"
+                      disabled
+                      style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem", opacity: 0.6, cursor: "not-allowed" }}
+                    >
+                      En Revisión
                     </button>
                   )}
                 </div>
@@ -553,123 +607,233 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
           </div>
         </div>
       )}
-      {/* Certification Test Modal */}
-      {takingTestId !== null && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
-          <div className="card-clean" style={{ width: "100%", maxWidth: "550px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 800 }}>
-                Examen: {tests.find(t => t.id === takingTestId)?.title}
-              </h3>
-              <button onClick={() => setTakingTestId(null)} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-primary)" }}>✕</button>
-            </div>
+      {/* Certification Test Modal — Pregunta por Pregunta */}
+      {takingTestId !== null && !testResult && (() => {
+        const currentQ = testQuestions[currentQuestionIndex];
+        const answered = testAnswers[currentQ.id];
+        const progressPct = ((currentQuestionIndex) / testQuestions.length) * 100;
+        return (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
+            <div className="card-clean" style={{ width: "100%", maxWidth: "560px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
 
-            {testError && (
-              <div style={{ fontSize: "0.85rem", color: "var(--danger)", marginBottom: "1rem", fontWeight: 600 }}>
-                {testError}
-              </div>
-            )}
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", marginBottom: "1.5rem" }}>
-              {testQuestions.map((q, idx) => (
-                <div key={q.id} style={{ borderBottom: idx < testQuestions.length - 1 ? "1px solid var(--border-color)" : "none", paddingBottom: "1rem" }}>
-                  <p style={{ fontSize: "0.9rem", fontWeight: 700, marginBottom: "0.75rem", color: "var(--text-primary)" }}>
-                    {idx + 1}. {q.question}
-                  </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                    {q.options.map((opt) => {
-                      const isSelected = testAnswers[q.id] === opt.key;
-                      return (
-                        <label
-                          key={opt.key}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "0.6rem 0.8rem",
-                            borderRadius: "var(--radius-md)",
-                            border: isSelected ? "1px solid var(--primary)" : "1px solid var(--border-color)",
-                            background: isSelected ? "rgba(253, 77, 1, 0.05)" : "var(--bg-tertiary)",
-                            cursor: "pointer",
-                            fontSize: "0.85rem",
-                            transition: "all 0.15s"
-                          }}
-                        >
-                          <input
-                            type="radio"
-                            name={`q-${q.id}`}
-                            checked={isSelected}
-                            onChange={() => setTestAnswers({ ...testAnswers, [q.id]: opt.key })}
-                            style={{ display: "none" }}
-                          />
-                          <span style={{
-                            width: "18px",
-                            height: "18px",
-                            borderRadius: "50%",
-                            border: "2px solid var(--border-color)",
-                            display: "inline-block",
-                            position: "relative",
-                            borderColor: isSelected ? "var(--primary)" : "var(--border-color)"
-                          }}>
-                            {isSelected && (
-                              <span style={{
-                                width: "10px",
-                                height: "10px",
-                                borderRadius: "50%",
-                                background: "var(--primary)",
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)"
-                              }} />
-                            )}
-                          </span>
-                          {opt.text}
-                        </label>
-                      );
-                    })}
+              {/* Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
+                <div>
+                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>
+                    Evaluacion de Certificacion
                   </div>
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 800, lineClamp: 2 }}>
+                    {tests.find(t => t.id === takingTestId)?.title}
+                  </h3>
                 </div>
-              ))}
+                <button onClick={() => { setTakingTestId(null); setTestAnswers({}); setCurrentQuestionIndex(0); }} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-muted)", flexShrink: 0, marginLeft: "1rem" }}>✕</button>
+              </div>
+
+              {/* Progress bar */}
+              <div style={{ marginBottom: "1.5rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: "6px" }}>
+                  <span>Pregunta {currentQuestionIndex + 1} de {testQuestions.length}</span>
+                  <span style={{ color: "var(--accent-teal)", fontWeight: 700 }}>{Math.round(progressPct)}% completado</span>
+                </div>
+                <div style={{ height: "6px", background: "var(--bg-tertiary)", borderRadius: "999px", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${progressPct}%`, background: "linear-gradient(90deg, var(--primary) 0%, var(--accent-amber) 100%)", borderRadius: "999px", transition: "width 0.3s ease" }} />
+                </div>
+              </div>
+
+              {/* Question */}
+              <p style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1.25rem", lineHeight: 1.5, color: "var(--text-primary)" }}>
+                {currentQ.question}
+              </p>
+
+              {/* Options */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.75rem" }}>
+                {currentQ.options.map((opt) => {
+                  const isSelected = answered === opt.key;
+                  return (
+                    <label
+                      key={opt.key}
+                      onClick={() => setTestAnswers({ ...testAnswers, [currentQ.id]: opt.key })}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "12px",
+                        padding: "0.75rem 1rem",
+                        borderRadius: "var(--radius-md)",
+                        border: isSelected ? "2px solid var(--primary)" : "1px solid var(--border-color)",
+                        background: isSelected ? "rgba(253,77,1,0.06)" : "var(--bg-tertiary)",
+                        cursor: "pointer", fontSize: "0.9rem", transition: "all 0.15s",
+                        fontWeight: isSelected ? 600 : 400
+                      }}
+                    >
+                      <span style={{
+                        width: "20px", height: "20px", borderRadius: "50%", flexShrink: 0,
+                        border: isSelected ? "2px solid var(--primary)" : "2px solid var(--border-color)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        transition: "all 0.15s"
+                      }}>
+                        {isSelected && <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "var(--primary)" }} />}
+                      </span>
+                      <span style={{ color: "var(--text-muted)", fontWeight: 800, minWidth: "18px" }}>{opt.key}.</span>
+                      {opt.text}
+                    </label>
+                  );
+                })}
+              </div>
+
+              {/* Navigation buttons */}
+              <div style={{ display: "flex", gap: "0.75rem" }}>
+                {currentQuestionIndex > 0 && (
+                  <button
+                    onClick={() => setCurrentQuestionIndex(i => i - 1)}
+                    className="btn btn-outline"
+                    style={{ flex: 1, padding: "0.75rem" }}
+                  >
+                    Anterior
+                  </button>
+                )}
+                {currentQuestionIndex < testQuestions.length - 1 ? (
+                  <button
+                    onClick={() => {
+                      if (!answered) { setTestError("Selecciona una respuesta antes de continuar."); return; }
+                      setTestError(null);
+                      setCurrentQuestionIndex(i => i + 1);
+                    }}
+                    className="btn btn-primary"
+                    style={{ flex: 1, padding: "0.75rem" }}
+                  >
+                    Siguiente
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (!answered) { setTestError("Selecciona una respuesta para finalizar."); return; }
+                      setTestError(null);
+                      // Calcular resultado
+                      const details = testQuestions.map(q => {
+                        const chosen = testAnswers[q.id] || "";
+                        const correct = chosen === q.correctKey;
+                        const chosenOpt = q.options.find(o => o.key === chosen);
+                        const correctOpt = q.options.find(o => o.key === q.correctKey);
+                        return {
+                          question: q.question,
+                          yourAnswer: chosenOpt ? `${chosen}. ${chosenOpt.text}` : "Sin respuesta",
+                          correctAnswer: correctOpt ? `${q.correctKey}. ${correctOpt.text}` : "",
+                          correct
+                        };
+                      });
+                      const score = details.filter(d => d.correct).length;
+                      const passed = score === testQuestions.length; // aprobado con 100%
+                      if (passed) {
+                        fetch("http://localhost:8000/api/tests/take/", {
+                          method: "POST",
+                          headers: getAuthHeaders(),
+                          body: JSON.stringify({ testId: takingTestId, freelancer: freelancerName, aprobado: true })
+                        }).catch(err => console.error("Error saving test result:", err));
+                        setTests(prev => prev.map(t => t.id === takingTestId ? { ...t, status: "Aprobado" } : t));
+                      } else {
+                        // En caso de reprobar, se mantiene pendiente pero se le obligará a solicitar reintento
+                        // No cambiamos el status aquí aún, se cambiará cuando presione "Solicitar Nuevo Intento"
+                      }
+                      setTestResult({ passed, score, total: testQuestions.length, details });
+                    }}
+                    className="btn btn-primary"
+                    style={{ flex: 1, padding: "0.75rem" }}
+                  >
+                    Finalizar Examen
+                  </button>
+                )}
+              </div>
+              {testError && (
+                <p style={{ fontSize: "0.82rem", color: "var(--danger)", marginTop: "0.75rem", fontWeight: 600, textAlign: "center" }}>{testError}</p>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Result Screen */}
+      {testResult && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem", overflowY: "auto" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "560px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", margin: "auto" }}>
+
+            {/* Result badge */}
+            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <div style={{
+                width: "80px", height: "80px", borderRadius: "50%", margin: "0 auto 1rem",
+                background: testResult.passed ? "rgba(13,148,136,0.12)" : "rgba(239,68,68,0.1)",
+                border: `2px solid ${testResult.passed ? "rgba(13,148,136,0.4)" : "rgba(239,68,68,0.3)"}`,
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem"
+              }}>
+                {testResult.passed ? "✓" : "✗"}
+              </div>
+              <h3 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.25rem", color: testResult.passed ? "var(--accent-teal)" : "var(--danger)" }}>
+                {testResult.passed ? "Examen Aprobado" : "Examen No Aprobado"}
+              </h3>
+              <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+                {testResult.passed
+                  ? "Certificacion agregada a tu perfil exitosamente."
+                  : `Obtuviste ${testResult.score} de ${testResult.total} respuestas correctas. Necesitas el 100% para aprobar.`}
+              </p>
+
+              {/* Score ring */}
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem", background: "var(--bg-tertiary)", border: "1px solid var(--border-color)", borderRadius: "999px", padding: "0.4rem 1rem", fontSize: "0.9rem", fontWeight: 800 }}>
+                <span style={{ color: testResult.passed ? "var(--accent-teal)" : "var(--danger)" }}>
+                  {testResult.score}/{testResult.total}
+                </span>
+                <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>respuestas correctas</span>
+              </div>
             </div>
 
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <button
-                onClick={() => setTakingTestId(null)}
-                className="btn btn-outline"
-                style={{ flex: 1, padding: "0.75rem" }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  const allCorrect = testQuestions.every(q => testAnswers[q.id] === q.correctKey);
-                  if (allCorrect) {
-                    // Save result to backend
-                    fetch("http://localhost:8000/api/tests/take/", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                        testId: takingTestId,
-                        freelancer: freelancerName,
-                        aprobado: true
-                      })
-                    }).catch(err => console.error("Error saving test result to backend:", err));
+            {/* Detail breakdown */}
+            <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "1.25rem", marginBottom: "1.5rem" }}>
+              <p style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.75rem" }}>
+                Detalle de Respuestas
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                {testResult.details.map((d, i) => (
+                  <div key={i} style={{
+                    background: d.correct ? "rgba(13,148,136,0.05)" : "rgba(239,68,68,0.05)",
+                    border: `1px solid ${d.correct ? "rgba(13,148,136,0.2)" : "rgba(239,68,68,0.2)"}`,
+                    borderRadius: "var(--radius-md)", padding: "0.75rem 1rem"
+                  }}>
+                    <div style={{ fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem", color: "var(--text-primary)" }}>
+                      {i + 1}. {d.question}
+                    </div>
+                    {!d.correct && (
+                      <div style={{ fontSize: "0.78rem", color: "var(--danger)", marginBottom: "0.2rem" }}>
+                        Tu respuesta: {d.yourAnswer}
+                      </div>
+                    )}
+                    <div style={{ fontSize: "0.78rem", color: d.correct ? "var(--accent-teal)" : "var(--text-secondary)", fontWeight: d.correct ? 700 : 400 }}>
+                      {d.correct ? "Correcta: " : "Respuesta correcta: "}{d.correctAnswer}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-                    setTests(prev => prev.map(t => t.id === takingTestId ? { ...t, status: "Aprobado" } : t));
-                    setSuccessMessage("Examen aprobado con exito. Tu perfil ahora cuenta con esta certificacion.");
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              {!testResult.passed && (
+                <button
+                  onClick={() => { 
+                    setTests(prev => prev.map(t => t.id === takingTestId ? { ...t, status: "Reintento Solicitado" } : t));
+                    setTestResult(null); 
+                    setTestAnswers({}); 
+                    setCurrentQuestionIndex(0); 
+                    setTestError(null); 
                     setTakingTestId(null);
-                  } else {
-                    setTestError("No has alcanzado la puntuacion minima. Revisa tus respuestas e intentalo de nuevo.");
-                  }
-                }}
+                    setSuccessMessage("Se ha enviado tu solicitud para intentar el examen nuevamente. Un distribuidor debe aprobarla.");
+                  }}
+                  className="btn btn-outline"
+                  style={{ flex: 1, padding: "0.75rem" }}
+                >
+                  Solicitar Nuevo Intento
+                </button>
+              )}
+              <button
+                onClick={() => { setTestResult(null); setTakingTestId(null); setTestAnswers({}); setCurrentQuestionIndex(0); setTestError(null); }}
                 className="btn btn-primary"
                 style={{ flex: 1, padding: "0.75rem" }}
-                disabled={Object.keys(testAnswers).length < testQuestions.length}
               >
-                Enviar Respuestas
+                {testResult.passed ? "Aceptar" : "Cerrar"}
               </button>
             </div>
           </div>
