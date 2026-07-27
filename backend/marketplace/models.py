@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
@@ -256,3 +257,22 @@ class Pago(models.Model):
 
     def __str__(self):
         return f"Pago de ${self.monto_pagado} para Pedido #{self.pedido.id}"
+
+
+class TokenSesion(models.Model):
+    """Token simple de autenticacion por sesion para proteger los endpoints de la API."""
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, verbose_name="Token")
+    usuario = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE,
+        related_name='tokens_sesion',
+        verbose_name="Usuario"
+    )
+    creado = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creacion")
+
+    class Meta:
+        verbose_name = "Token de Sesion"
+        verbose_name_plural = "Tokens de Sesion"
+
+    def __str__(self):
+        return f"Token de {self.usuario.username}"

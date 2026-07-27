@@ -15,6 +15,8 @@ interface EmpresaDashboardProps {
   minOrder: number;
   onUpdateMinOrder: (newMin: number) => void;
   onAddProduct: (newProd: Omit<Product, "id">) => void;
+  onEditProduct: (updatedProd: Product) => void;
+  onDeleteProduct: (id: string) => void;
   companyName?: string;
 }
 
@@ -23,6 +25,8 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   minOrder,
   onUpdateMinOrder,
   onAddProduct,
+  onEditProduct,
+  onDeleteProduct,
   companyName = "Distribuidora Mayorista ISBEN",
 }) => {
   const [minOrderInput, setMinOrderInput] = useState<number>(minOrder);
@@ -37,17 +41,38 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   const [stock, setStock] = useState(100);
   const [image, setImage] = useState("");
 
+  // Edit product states
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editCategory, setEditCategory] = useState("Abarrotes");
+  const [editPrice, setEditPrice] = useState(25.0);
+  const [editUnitPack, setEditUnitPack] = useState("");
+  const [editStock, setEditStock] = useState(100);
+  const [editImage, setEditImage] = useState("");
+
+  // Edit test states
+  const [editingTest, setEditingTest] = useState<{ id: number; title: string } | null>(null);
+  const [editTestTitle, setEditTestTitle] = useState("");
+
   const [tests, setTests] = useState([
     { id: 1, title: "Certificación Manejo de Cadena de Frío", company: "Lácteos del Sur", passScore: "80%" },
     { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", passScore: "90%" },
   ]);
   const [newTestTitle, setNewTestTitle] = useState("");
 
+  // Helper: token de autenticacion
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem("isben_token") : null;
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Token ${token}`;
+    return headers;
+  };
+
   // Load tests from backend on mount
   React.useEffect(() => {
     const fetchTests = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/tests/");
+        const res = await fetch("http://localhost:8000/api/tests/", { headers: getAuthHeaders() });
         if (res.ok) {
           const data = await res.json();
           if (data && data.length > 0) {
@@ -66,6 +91,75 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
     };
     fetchTests();
   }, []);
+
+  const startEdit = (p: Product) => {
+    setEditingProduct(p);
+    setEditName(p.name);
+    setEditCategory(p.category);
+    setEditPrice(p.pricePerUnit);
+    setEditUnitPack(p.unitPackName);
+    setEditStock(p.stock);
+    setEditImage(p.image);
+  };
+
+  const handleSaveEditProduct = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    onEditProduct({
+      id: editingProduct.id,
+      name: editName,
+      category: editCategory,
+      pricePerUnit: Number(editPrice),
+      unitPackName: editUnitPack,
+      stock: Number(editStock),
+      image: editImage.trim(),
+      companyName: editingProduct.companyName
+    });
+    setEditingProduct(null);
+  };
+
+  const startEditTest = (t: any) => {
+    setEditingTest(t);
+    setEditTestTitle(t.title);
+  };
+
+  const handleSaveEditTest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTest) return;
+    try {
+      const response = await fetch("http://localhost:8000/api/tests/", {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          id: editingTest.id,
+          title: editTestTitle
+        })
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setTests(prev => prev.map(t => t.id === result.id ? { ...t, title: result.title } : t));
+      }
+    } catch (err) {
+      console.error("Error updating test:", err);
+      setTests(prev => prev.map(t => t.id === editingTest.id ? { ...t, title: editTestTitle } : t));
+    }
+    setEditingTest(null);
+  };
+
+  const handleDeleteTest = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/tests/?id=${id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (response.ok) {
+        setTests(prev => prev.filter(t => t.id !== id));
+      }
+    } catch (err) {
+      console.error("Error deleting test:", err);
+      setTests(prev => prev.filter(t => t.id !== id));
+    }
+  };
 
   const handleSaveMinOrder = () => {
     onUpdateMinOrder(minOrderInput);
@@ -96,9 +190,7 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
     try {
       const response = await fetch("http://localhost:8000/api/tests/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           title: newTestTitle,
           company: companyName,
@@ -242,6 +334,7 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
                 <th style={{ padding: "0.75rem" }}>Precio Mayorista</th>
                 <th style={{ padding: "0.75rem" }}>Stock Disponible</th>
                 <th style={{ padding: "0.75rem" }}>Estado</th>
+                <th style={{ padding: "0.75rem", textAlign: "right" }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -265,6 +358,10 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
                         <IconCheck size={14} /> Óptimo
                       </span>
                     )}
+                  </td>
+                  <td style={{ padding: "0.75rem", textAlign: "right" }}>
+                    <button onClick={() => startEdit(p)} className="btn btn-outline" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem", marginRight: "0.5rem" }}>Editar</button>
+                    <button onClick={() => onDeleteProduct(p.id)} className="btn btn-outline" style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem", color: "var(--primary)", borderColor: "var(--primary)" }}>Eliminar</button>
                   </td>
                 </tr>
               ))}
@@ -303,10 +400,18 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
           {tests.map((test) => (
-            <div key={test.id} style={{ background: "var(--bg-tertiary)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)" }}>
-              <div style={{ fontWeight: 700, marginBottom: "0.25rem", fontSize: "0.9rem" }}>{test.title}</div>
-              <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Puntaje mínimo requerido: {test.passScore}</div>
-              <span className="badge-clean badge-clean-primary" style={{ marginTop: "0.5rem" }}>Activo</span>
+            <div key={test.id} style={{ background: "var(--bg-tertiary)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div>
+                <div style={{ fontWeight: 700, marginBottom: "0.25rem", fontSize: "0.9rem" }}>{test.title}</div>
+                <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>Puntaje mínimo requerido: {test.passScore}</div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem" }}>
+                <span className="badge-clean badge-clean-primary">Activo</span>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button onClick={() => startEditTest(test)} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem" }}>Editar</button>
+                  <button onClick={() => handleDeleteTest(test.id)} className="btn btn-outline" style={{ padding: "0.25rem 0.5rem", fontSize: "0.75rem", color: "var(--primary)", borderColor: "var(--primary)" }}>Eliminar</button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -352,6 +457,71 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
               <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
                 <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-outline" style={{ flex: 1 }}>Cancelar</button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Guardar Producto</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+          <div className="card-clean" style={{ width: "90%", maxWidth: "480px", padding: "2rem" }}>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "1rem" }}>Editar Producto Mayorista</h3>
+            <form onSubmit={handleSaveEditProduct} style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Nombre del Producto</label>
+                <input required type="text" value={editName} onChange={(e) => setEditName(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Categoría</label>
+                <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}>
+                  <option value="Abarrotes">Abarrotes</option>
+                  <option value="Bebidas">Bebidas</option>
+                  <option value="Limpieza">Limpieza</option>
+                  <option value="Cuidado Personal">Cuidado Personal</option>
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Precio ($ USD)</label>
+                  <input required type="number" step="0.01" value={editPrice} onChange={(e) => setEditPrice(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Stock Disponible</label>
+                  <input required type="number" value={editStock} onChange={(e) => setEditStock(Number(e.target.value))} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Presentación de Paca/Caja</label>
+                <input required type="text" value={editUnitPack} onChange={(e) => setEditUnitPack(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Imagen del Producto (URL o ruta local)</label>
+                <input type="text" value={editImage} onChange={(e) => setEditImage(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <button type="button" onClick={() => setEditingProduct(null)} className="btn btn-outline" style={{ flex: 1 }}>Cancelar</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Guardar Cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Test Modal */}
+      {editingTest && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 210 }}>
+          <div className="card-clean" style={{ width: "90%", maxWidth: "440px", padding: "2rem" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "1rem" }}>Editar Evaluación / Certificación</h3>
+            <form onSubmit={handleSaveEditTest} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Título de la Evaluación</label>
+                <input required type="text" value={editTestTitle} onChange={(e) => setEditTestTitle(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+              </div>
+              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <button type="button" onClick={() => setEditingTest(null)} className="btn btn-outline" style={{ flex: 1 }}>Cancelar</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Guardar Cambios</button>
               </div>
             </form>
           </div>

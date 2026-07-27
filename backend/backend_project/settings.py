@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-9qgs6nd--^q)y#^2o&gf80d2@yf__w@!pkxx&s0+wor)-ja)q5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# CORS: solo permitir el frontend local en desarrollo
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
 
 
 # Application definition
@@ -58,7 +64,7 @@ ROOT_URLCONF = 'backend_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'marketplace' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

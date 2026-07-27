@@ -89,10 +89,19 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
     { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", status: "Pendiente" },
   ]);
 
+  const getAuthHeaders = (): Record<string, string> => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem("isben_token") : null;
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Token ${token}`;
+    return headers;
+  };
+
   useEffect(() => {
     const fetchTests = async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/tests/?freelancer=${encodeURIComponent(freelancerName)}`);
+        const res = await fetch(`http://localhost:8000/api/tests/?freelancer=${encodeURIComponent(freelancerName)}`, {
+          headers: getAuthHeaders(),
+        });
         if (res.ok) {
           const data = await res.json();
           if (data && data.length > 0) {

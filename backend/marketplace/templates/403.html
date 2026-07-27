@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>403 — Prohibido | ISBEN API</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #090e1a; --card: #111827; --border: rgba(255,255,255,0.07);
+      --primary: #f97316; --primary-glow: rgba(249,115,22,0.25);
+      --text: #f1f5f9; --text-muted: #64748b; --teal: #0d9488;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 20% 30%, rgba(249,115,22,0.06) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 70%, rgba(13,148,136,0.05) 0%, transparent 60%); pointer-events: none; }
+    .container { position: relative; z-index: 1; text-align: center; max-width: 520px; width: 100%; animation: fadeUp 0.6s ease both; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .icon-ring { width: 96px; height: 96px; border-radius: 50%; background: var(--primary-glow); border: 2px solid rgba(249,115,22,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; animation: pulse 2.5s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--primary-glow); } 50% { box-shadow: 0 0 0 14px transparent; } }
+    .icon-ring svg { width: 42px; height: 42px; stroke: var(--primary); }
+    .code-badge { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; color: var(--primary); background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.25); border-radius: 999px; padding: 0.3rem 0.9rem; text-transform: uppercase; margin-bottom: 1rem; }
+    h1 { font-size: 3.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1; background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .description { font-size: 0.92rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem; }
+    .btn-group { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 0.65rem 1.4rem; border-radius: 8px; font-size: 0.88rem; font-weight: 700; cursor: pointer; text-decoration: none; border: none; transition: all 0.18s ease; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: #ea6c09; transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-outline:hover { color: var(--text); border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+    .footer-note { margin-top: 2.5rem; font-size: 0.78rem; color: var(--text-muted); }
+    .footer-note span { color: var(--teal); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-ring">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+      </svg>
+    </div>
+    <div class="code-badge">HTTP 403</div>
+    <h1>403</h1>
+    <p class="subtitle">Acceso Prohibido</p>
+    <p class="description">Tu cuenta no tiene los permisos necesarios para acceder a este recurso. Verifica que tu rol de usuario sea el correcto para esta operacion.</p>
+    <div class="btn-group">
+      <a href="/" class="btn btn-primary"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Volver al Inicio</a>
+      <button onclick="history.back()" class="btn btn-outline"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>Pagina Anterior</button>
+    </div>
+    <p class="footer-note">ISBEN Marketplace — API v1.0 &nbsp;|&nbsp; <span>Permisos insuficientes</span></p>
+  </div>
+</body>
+</html>

@@ -123,12 +123,22 @@ export default function Home() {
     }
   }, []);
 
+  // Helper: devuelve los headers con el token de autenticacion si existe
+  const getAuthHeaders = (): HeadersInit => {
+    const token = localStorage.getItem("isben_token");
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Token ${token}`;
+    return headers;
+  };
+
   // Load user order history from backend when history modal opens
   useEffect(() => {
     if (isHistoryOpen && isSessionActive) {
       const fetchHistory = async () => {
         try {
-          const res = await fetch(`http://localhost:8000/api/pedidos/?clientName=${encodeURIComponent(username)}`);
+          const res = await fetch(`http://localhost:8000/api/pedidos/?clientName=${encodeURIComponent(username)}`, {
+            headers: getAuthHeaders(),
+          });
           if (res.ok) {
             const data = await res.json();
             if (data && data.length > 0) {
@@ -146,8 +156,11 @@ export default function Home() {
   // Load products and minimum order from API on mount
   useEffect(() => {
     const loadData = async () => {
+      const token = localStorage.getItem("isben_token");
+      if (!token) return; // Solo carga si hay sesion activa con token
       try {
-        const prodRes = await fetch("http://localhost:8000/api/productos/");
+        const authHeaders = getAuthHeaders();
+        const prodRes = await fetch("http://localhost:8000/api/productos/", { headers: authHeaders });
         if (prodRes.ok) {
           const prods = await prodRes.json();
           if (prods && prods.length > 0) {
@@ -155,7 +168,7 @@ export default function Home() {
           }
         }
         
-        const minOrderRes = await fetch("http://localhost:8000/api/min-order/");
+        const minOrderRes = await fetch("http://localhost:8000/api/min-order/", { headers: authHeaders });
         if (minOrderRes.ok) {
           const minData = await minOrderRes.json();
           setMinOrder(minData.minOrder);
@@ -165,7 +178,7 @@ export default function Home() {
       }
     };
     loadData();
-  }, []);
+  }, [isSessionActive]);
 
   // Theme synchronization
   useEffect(() => {
@@ -178,7 +191,7 @@ export default function Home() {
     localStorage.setItem("isben_theme", nextTheme);
   };
 
-  const handleLoginSuccess = (role: "tendero" | "empresa" | "freelance" | "admin", name: string) => {
+  const handleLoginSuccess = (role: "tendero" | "empresa" | "freelance" | "admin", name: string, token?: string) => {
     setCurrentRole(role);
     setUsername(name);
     setViewState("portal");
@@ -186,6 +199,7 @@ export default function Home() {
     localStorage.setItem("isben_role", role);
     localStorage.setItem("isben_username", name);
     localStorage.setItem("isben_viewState", "portal");
+    if (token) localStorage.setItem("isben_token", token);
   };
 
   const handleSelectRoleDemo = (role: "tendero" | "empresa" | "freelance" | "admin") => {
@@ -210,6 +224,7 @@ export default function Home() {
     localStorage.removeItem("isben_role");
     localStorage.removeItem("isben_username");
     localStorage.removeItem("isben_viewState");
+    localStorage.removeItem("isben_token");
   };
 
   const handleUpdateQuantity = (productId: string, delta: number) => {
@@ -229,9 +244,7 @@ export default function Home() {
     try {
       const response = await fetch("http://localhost:8000/api/productos/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(newProd),
       });
       if (response.ok) {
@@ -254,6 +267,45 @@ export default function Home() {
     }
   };
 
+  const handleEditProduct = async (updated: Product) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/productos/", {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          id: updated.id,
+          name: updated.name,
+          pricePerUnit: updated.pricePerUnit,
+          stock: updated.stock,
+          unitPackName: updated.unitPackName,
+          image: updated.image
+        }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setProducts(prev => prev.map(p => p.id === result.id ? { ...p, ...result } : p));
+      }
+    } catch (err) {
+      console.error("Error editing product:", err);
+      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/productos/?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      if (response.ok) {
+        setProducts(prev => prev.filter(p => p.id !== id));
+      }
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      setProducts(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
   const handlePlaceOrderForClient = (clientName: string, productId: string, quantity: number) => {
     handleUpdateQuantity(productId, quantity);
   };
@@ -263,13 +315,11 @@ export default function Home() {
     try {
       await fetch("http://localhost:8000/api/min-order/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ minOrder: newMin }),
       });
     } catch (err) {
-      console.error("Error actualizando monto mínimo:", err);
+      console.error("Error actualizando monto minimo:", err);
     }
   };
 
@@ -289,9 +339,7 @@ export default function Home() {
     try {
       const response = await fetch("http://localhost:8000/api/pedidos/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           cart,
           clientName: username,
@@ -402,6 +450,8 @@ export default function Home() {
                 minOrder={minOrder}
                 onUpdateMinOrder={handleUpdateMinOrder}
                 onAddProduct={handleAddProduct}
+                onEditProduct={handleEditProduct}
+                onDeleteProduct={handleDeleteProduct}
                 companyName={username}
               />
             )}

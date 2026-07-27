@@ -5,7 +5,7 @@ import React, { useState } from "react";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: (role: "tendero" | "empresa" | "freelance" | "admin", username: string) => void;
+  onLoginSuccess: (role: "tendero" | "empresa" | "freelance" | "admin", username: string, token?: string) => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
@@ -36,7 +36,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       }
       
       const mappedRole = data.rol === "freelancer" ? "freelance" : data.rol;
-      onLoginSuccess(mappedRole as "tendero" | "empresa" | "freelance" | "admin", data.name);
+      onLoginSuccess(mappedRole as "tendero" | "empresa" | "freelance" | "admin", data.name, data.token);
       onClose();
     } catch (err) {
       setErrorMsg("No se pudo conectar con el servidor backend de Django.");

@@ -2,11 +2,33 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
-from .models import Usuario, PerfilEmpresa, PerfilFreelance, Producto, Pedido, DetallePedido
+from django.db import transaction
+from .models import Usuario, PerfilEmpresa, PerfilFreelance, Producto, Pedido, DetallePedido, TokenSesion
 from django.db.models import Q
 import json
+import functools
 
 User = get_user_model()
+
+
+def requiere_token(view_func):
+    """Decorador que protege un endpoint exigiendo el header 'Authorization: Token <token>'.
+    Si el token es invalido o falta, retorna la pagina 401.html personalizada.
+    """
+    @functools.wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+        if not auth_header.startswith('Token '):
+            return render(request, '401.html', status=401)
+        token_value = auth_header.split(' ', 1)[1].strip()
+        try:
+            token_obj = TokenSesion.objects.select_related('usuario').get(token=token_value)
+            request.user_token = token_obj.usuario
+        except (TokenSesion.DoesNotExist, Exception):
+            return render(request, '401.html', status=401)
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
 
 def get_product_category(name):
     name_lower = name.lower()
@@ -55,17 +77,23 @@ def api_login(request):
             name = "Carlos Vendedor Freelance"
         elif user.rol == Usuario.Rol.ADMIN:
             name = "Administrador Sistema"
+        
+        # Generar (o reutilizar) token de sesion para este usuario
+        token_obj, _ = TokenSesion.objects.get_or_create(usuario=user)
             
         return JsonResponse({
             'username': user.username,
             'email': user.email,
             'rol': user.rol.lower(),  # Convert to lowercase to match frontend "tendero", "empresa", etc.
-            'name': name
+            'name': name,
+            'token': str(token_obj.token)
         })
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 @csrf_exempt
+@requiere_token
 def api_productos(request):
     if request.method == 'GET':
         # Seeding logic: if no products exist, seed the default ones
@@ -201,7 +229,60 @@ def api_productos(request):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
 
+    elif request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            prod_id = data.get('id')
+            product = Producto.objects.get(id=int(prod_id))
+            product.nombre = data.get('name', product.nombre)
+            product.precio = data.get('pricePerUnit', product.precio)
+            product.stock = data.get('stock', product.stock)
+            
+            desc = data.get('unitPackName', product.descripcion)
+            image_input = data.get('image', '')
+            if image_input and not image_input.startswith('/groceries_pack') and not image_input.startswith('/beverages_pack') and not image_input.startswith('/cleaning_pack'):
+                clean_desc = desc.split("||")[0].strip()
+                desc = f"{clean_desc} || {image_input}"
+            else:
+                desc = desc.split("||")[0].strip()
+
+            product.descripcion = desc
+            product.save()
+            
+            category = get_product_category(product.nombre)
+            image_url = image_input if image_input else get_product_image(product.nombre, category)
+            
+            return JsonResponse({
+                'id': str(product.id),
+                'name': product.nombre,
+                'category': category,
+                'pricePerUnit': float(product.precio),
+                'unitPackName': data.get('unitPackName', desc.split("||")[0].strip()),
+                'stock': product.stock,
+                'image': image_url,
+                'isLowStock': product.stock <= product.umbral_bajo_stock
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    elif request.method == 'DELETE':
+        prod_id = request.GET.get('id')
+        if not prod_id:
+            try:
+                data = json.loads(request.body)
+                prod_id = data.get('id')
+            except Exception:
+                pass
+        if prod_id:
+            try:
+                Producto.objects.filter(id=int(prod_id)).delete()
+                return JsonResponse({'message': 'Producto eliminado con éxito'})
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'error': 'ID de producto no proporcionado'}, status=400)
+
 @csrf_exempt
+@requiere_token
 def api_pedidos(request):
     if request.method == 'GET':
         client_name = request.GET.get('clientName', '').strip()
@@ -250,13 +331,15 @@ def api_pedidos(request):
             if isinstance(prod_id, str) and '-' in prod_id:
                 clean_id = prod_id.split('-')[-1]
             try:
-                product = Producto.objects.get(id=int(clean_id))
+                # Transaccion atomica con lock de fila para evitar race conditions en stock
+                with transaction.atomic():
+                    product = Producto.objects.select_for_update().get(id=int(clean_id))
+                    if product.stock < qty:
+                        continue  # Saltar si no hay stock suficiente
+                    product.stock = max(0, product.stock - qty)
+                    product.save()
             except (Producto.DoesNotExist, ValueError):
                 continue
-                
-            # Deduct stock
-            product.stock = max(0, product.stock - qty)
-            product.save()
             
             # Simple simulation: one Pedido per product for simplicity or group by company
             # We can create a single Pedido for the company
@@ -319,6 +402,7 @@ def api_min_order(request):
             return JsonResponse({'error': str(e)}, status=400)
 
 @csrf_exempt
+@requiere_token
 def api_tests(request):
     if request.method == 'GET':
         # Seeding default tests if none exist
@@ -392,6 +476,38 @@ def api_tests(request):
             }, status=201)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
+    elif request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            test_id = data.get('id')
+            exam = ExamenCertificacion.objects.get(id=int(test_id))
+            exam.titulo = data.get('title', exam.titulo)
+            exam.save()
+            return JsonResponse({
+                'id': exam.id,
+                'title': exam.titulo,
+                'company': exam.empresa.perfil_empresa.nombre_empresa if exam.empresa.perfil_empresa else "Proveedor",
+                'status': 'Pendiente'
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    elif request.method == 'DELETE':
+        test_id = request.GET.get('id')
+        if not test_id:
+            try:
+                data = json.loads(request.body)
+                test_id = data.get('id')
+            except Exception:
+                pass
+        if test_id:
+            try:
+                ExamenCertificacion.objects.filter(id=int(test_id)).delete()
+                return JsonResponse({'message': 'Examen eliminado con éxito'})
+            except Exception as e:
+                return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({'error': 'ID de examen no proporcionado'}, status=400)
 
 @csrf_exempt
 def api_take_test(request):
