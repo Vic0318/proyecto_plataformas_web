@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files: ignorar archivos con valores reales, pero incluir la plantilla publica
 .env*
+!.env.example
 
 # vercel
 .vercel
