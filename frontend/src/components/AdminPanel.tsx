@@ -25,7 +25,7 @@ export const AdminPanel: React.FC = () => {
           </span>
           <h2 style={{ fontSize: "1.8rem", fontWeight: 800 }}>Monetización, Seguridad y Gestión de Usuarios</h2>
           <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-            Monitorea el rendimiento financiero de la plataforma, cobro de comisiones (2%) y suscripciones anuales (RF5.1).
+            Monitorea el rendimiento financiero de la plataforma, cobro de comisiones (2%) y suscripciones anuales.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export const AdminPanel: React.FC = () => {
         {/* Monetization Models (RF5.1) */}
         <div className="card-clean" style={{ padding: "1.5rem" }}>
           <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-            Monetización Interna de la Plataforma (RF5.1)
+            Monetización Interna de la Plataforma
           </h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
             Modelo híbrido de ingresos para cobro a las empresas proveedoras.
@@ -80,7 +80,7 @@ export const AdminPanel: React.FC = () => {
         {/* Security & PCI-DSS (RNF3.1 / RNF3.2) */}
         <div className="card-clean" style={{ padding: "1.5rem" }}>
           <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-            Estado de Seguridad y Cifrado (RNF3.1 / RNF3.2)
+            Estado de Seguridad y Cifrado
           </h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
             Certificación de seguridad en transacciones y hashing de credenciales.

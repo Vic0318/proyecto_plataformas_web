@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Product } from "./TenderoView";
 import {
   IconBriefcase,
@@ -14,11 +14,36 @@ import {
 interface FreelancePortalProps {
   products: Product[];
   onPlaceOrderForClient: (clientName: string, productId: string, quantity: number) => void;
+  freelancerName?: string;
 }
+
+const testQuestions = [
+  {
+    id: 1,
+    question: "¿Cual es el rango de temperatura estandar para conservar vacunas y medicamentos termo-sensibles?",
+    options: [
+      { key: "A", text: "15 C a 25 C (Temperatura ambiente)" },
+      { key: "B", text: "2 C a 8 C (Cadena de frio)" },
+      { key: "C", text: "-10 C a 0 C (Congelacion)" }
+    ],
+    correctKey: "B"
+  },
+  {
+    id: 2,
+    question: "¿Cual es el protocolo correcto al recibir un lote de productos medicos con el sello de seguridad alterado?",
+    options: [
+      { key: "A", text: "Almacenarlo normalmente y reportarlo al final de la semana" },
+      { key: "B", text: "Rechazar el lote inmediatamente y notificar al proveedor" },
+      { key: "C", text: "Venderlo con descuento para liquidar el stock rapido" }
+    ],
+    correctKey: "B"
+  }
+];
 
 export const FreelancePortal: React.FC<FreelancePortalProps> = ({
   products,
   onPlaceOrderForClient,
+  freelancerName = "Carlos Vendedor Freelance",
 }) => {
   const [activeTab, setActiveTab] = useState<"catalogo" | "pedido" | "comisiones" | "tests">("catalogo");
 
@@ -28,6 +53,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const categories = ["Todos", "Abarrotes", "Bebidas", "Limpieza", "Cuidado Personal"];
 
@@ -60,8 +86,29 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
 
   const [tests, setTests] = useState([
     { id: 1, title: "Certificación Manejo de Cadena de Frío", company: "Lácteos del Sur", status: "Aprobado" },
-    { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", status: "Pendiente Rendir" },
+    { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", status: "Pendiente" },
   ]);
+
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/api/tests/?freelancer=${encodeURIComponent(freelancerName)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            setTests(data);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching tests:", err);
+      }
+    };
+    fetchTests();
+  }, [freelancerName]);
+
+  const [takingTestId, setTakingTestId] = useState<number | null>(null);
+  const [testAnswers, setTestAnswers] = useState<{ [qId: number]: string }>({});
+  const [testError, setTestError] = useState<string | null>(null);
 
   const handleQuickOrderClick = (productId: string) => {
     setSelectedProduct(productId);
@@ -84,19 +131,19 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
       product: prod.name,
       total: totalOrder,
       commission: commissionCalc,
-      status: "Pendiente Confirmación Entrega (Retenido - RF4.3)",
+      status: "Pendiente Confirmación Entrega (Retenido)",
       isDelivered: false,
     };
 
     setFreelanceOrders([newOrder, ...freelanceOrders]);
-    alert(`Pedido registrado exitosamente a nombre de "${selectedClient}". Comisión estimada: $${commissionCalc.toFixed(2)} USD (Retenida hasta entrega)`);
+    setSuccessMessage(`Pedido registrado exitosamente a nombre de "${selectedClient}". Comision estimada: $${commissionCalc.toFixed(2)} USD (Retenida hasta entrega)`);
   };
 
   const handleSimulateDelivery = (orderId: string) => {
     setFreelanceOrders((prev) =>
       prev.map((o) =>
         o.id === orderId
-          ? { ...o, status: "Entregado y Liberado (RF4.3)", isDelivered: true }
+          ? { ...o, status: "Entregado y Liberado", isDelivered: true }
           : o
       )
     );
@@ -131,7 +178,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
           </span>
           <h2 style={{ fontSize: "1.8rem", fontWeight: 800 }}>Catálogo Mayorista y Gestión de Ventas</h2>
           <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-            Explora productos, registra ventas a nombre de tenderos y gestiona tus comisiones (RF2.1 / RF3.2 / RF4.2).
+            Explora productos, registra ventas a nombre de tenderos y gestiona tus comisiones.
           </p>
         </div>
 
@@ -334,7 +381,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
       {activeTab === "pedido" && (
         <div className="card-clean" style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
           <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-            Registrar Pedido a Nombre del Tendero (RF3.2)
+            Registrar Pedido a Nombre del Tendero
           </h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
             Ingresa la venta realizada a nombre de tu cliente. La comisión se calculará automáticamente.
@@ -392,7 +439,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
       {activeTab === "comisiones" && (
         <div className="card-clean" style={{ padding: "1.5rem" }}>
           <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-            Historial de Pedidos y Retención de Comisiones (RF4.3)
+            Historial de Pedidos y Retención de Comisiones
           </h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
             La comisión permanece retenida hasta que el cliente o el despachador confirme la entrega física.
@@ -431,7 +478,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                           className="btn btn-outline"
                           style={{ padding: "0.3rem 0.6rem", fontSize: "0.75rem" }}
                         >
-                          Simular Confirmación Entrega (RF4.3)
+                          Simular Confirmación Entrega
                         </button>
                       )}
                     </td>
@@ -447,7 +494,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
       {activeTab === "tests" && (
         <div className="card-clean" style={{ padding: "1.5rem", maxWidth: "700px", margin: "0 auto" }}>
           <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-            Certificaciones y Perfiles Calificados (RF1.3)
+            Certificaciones y Perfiles Calificados
           </h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
             Rinde exámenes exigidos por empresas farmacéuticas o especializadas para vender sus líneas de productos.
@@ -460,11 +507,162 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                   <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{t.title}</div>
                   <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{t.company}</div>
                 </div>
-                <span className={`badge-clean ${t.status === "Aprobado" ? "badge-clean-success" : "badge-clean-neutral"}`}>
-                  {t.status === "Aprobado" ? <><IconCheck size={14} /> Aprobado</> : "Pendiente"}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <span className={`badge-clean ${t.status === "Aprobado" ? "badge-clean-success" : "badge-clean-neutral"}`}>
+                    {t.status === "Aprobado" ? <><IconCheck size={14} /> Aprobado</> : "Pendiente"}
+                  </span>
+                  {t.status !== "Aprobado" && (
+                    <button
+                      onClick={() => { setTakingTestId(t.id); setTestAnswers({}); setTestError(null); }}
+                      className="btn btn-outline"
+                      style={{ padding: "0.35rem 0.75rem", fontSize: "0.8rem" }}
+                    >
+                      Rendir Examen
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal */}
+      {successMessage && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "450px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(13, 148, 136, 0.1)", color: "var(--accent-teal)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
+              <IconCheck size={36} />
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "0.75rem" }}>Pedido Registrado</h3>
+            <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem", lineHeight: 1.5 }}>
+              {successMessage}
+            </p>
+            <button onClick={() => setSuccessMessage(null)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+              Aceptar
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Certification Test Modal */}
+      {takingTestId !== null && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "550px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h3 style={{ fontSize: "1.2rem", fontWeight: 800 }}>
+                Examen: {tests.find(t => t.id === takingTestId)?.title}
+              </h3>
+              <button onClick={() => setTakingTestId(null)} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-primary)" }}>✕</button>
+            </div>
+
+            {testError && (
+              <div style={{ fontSize: "0.85rem", color: "var(--danger)", marginBottom: "1rem", fontWeight: 600 }}>
+                {testError}
+              </div>
+            )}
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", marginBottom: "1.5rem" }}>
+              {testQuestions.map((q, idx) => (
+                <div key={q.id} style={{ borderBottom: idx < testQuestions.length - 1 ? "1px solid var(--border-color)" : "none", paddingBottom: "1rem" }}>
+                  <p style={{ fontSize: "0.9rem", fontWeight: 700, marginBottom: "0.75rem", color: "var(--text-primary)" }}>
+                    {idx + 1}. {q.question}
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {q.options.map((opt) => {
+                      const isSelected = testAnswers[q.id] === opt.key;
+                      return (
+                        <label
+                          key={opt.key}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "0.6rem 0.8rem",
+                            borderRadius: "var(--radius-md)",
+                            border: isSelected ? "1px solid var(--primary)" : "1px solid var(--border-color)",
+                            background: isSelected ? "rgba(253, 77, 1, 0.05)" : "var(--bg-tertiary)",
+                            cursor: "pointer",
+                            fontSize: "0.85rem",
+                            transition: "all 0.15s"
+                          }}
+                        >
+                          <input
+                            type="radio"
+                            name={`q-${q.id}`}
+                            checked={isSelected}
+                            onChange={() => setTestAnswers({ ...testAnswers, [q.id]: opt.key })}
+                            style={{ display: "none" }}
+                          />
+                          <span style={{
+                            width: "18px",
+                            height: "18px",
+                            borderRadius: "50%",
+                            border: "2px solid var(--border-color)",
+                            display: "inline-block",
+                            position: "relative",
+                            borderColor: isSelected ? "var(--primary)" : "var(--border-color)"
+                          }}>
+                            {isSelected && (
+                              <span style={{
+                                width: "10px",
+                                height: "10px",
+                                borderRadius: "50%",
+                                background: "var(--primary)",
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)"
+                              }} />
+                            )}
+                          </span>
+                          {opt.text}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <button
+                onClick={() => setTakingTestId(null)}
+                className="btn btn-outline"
+                style={{ flex: 1, padding: "0.75rem" }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  const allCorrect = testQuestions.every(q => testAnswers[q.id] === q.correctKey);
+                  if (allCorrect) {
+                    // Save result to backend
+                    fetch("http://localhost:8000/api/tests/take/", {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        testId: takingTestId,
+                        freelancer: freelancerName,
+                        aprobado: true
+                      })
+                    }).catch(err => console.error("Error saving test result to backend:", err));
+
+                    setTests(prev => prev.map(t => t.id === takingTestId ? { ...t, status: "Aprobado" } : t));
+                    setSuccessMessage("Examen aprobado con exito. Tu perfil ahora cuenta con esta certificacion.");
+                    setTakingTestId(null);
+                  } else {
+                    setTestError("No has alcanzado la puntuacion minima. Revisa tus respuestas e intentalo de nuevo.");
+                  }
+                }}
+                className="btn btn-primary"
+                style={{ flex: 1, padding: "0.75rem" }}
+                disabled={Object.keys(testAnswers).length < testQuestions.length}
+              >
+                Enviar Respuestas
+              </button>
+            </div>
           </div>
         </div>
       )}

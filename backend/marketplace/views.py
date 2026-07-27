@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from .models import Usuario, PerfilEmpresa, PerfilFreelance, Producto, Pedido, DetallePedido
+from django.db.models import Q
 import json
 
 User = get_user_model()
@@ -67,6 +68,59 @@ def api_login(request):
 @csrf_exempt
 def api_productos(request):
     if request.method == 'GET':
+        # Seeding logic: if no products exist, seed the default ones
+        if Producto.objects.count() == 0:
+            # Find or create a default company user to associate with
+            company_user = User.objects.filter(rol=Usuario.Rol.EMPRESA).first()
+            if not company_user:
+                company_user = User.objects.create_user(
+                    username="empresa_default",
+                    email="proveedor@isben.com",
+                    rol=Usuario.Rol.EMPRESA
+                )
+                company_user.set_password("proveedor123")
+                company_user.save()
+                PerfilEmpresa.objects.create(
+                    usuario=company_user,
+                    nombre_empresa="Distribuidora Mayorista ISBEN",
+                    monto_minimo_compra=60.00,
+                    suscripcion_activa=True
+                )
+            
+            # Create default products
+            Producto.objects.create(
+                empresa=company_user,
+                nombre="Aceite Vegetal D'Oliva 1L",
+                precio=34.50,
+                stock=85,
+                descripcion="Paca de 12 botellas (1L c/u)",
+                umbral_bajo_stock=10
+            )
+            Producto.objects.create(
+                empresa=company_user,
+                nombre="Arroz Grano Largo Superior",
+                precio=28.00,
+                stock=12,
+                descripcion="Saco de 50 kg",
+                umbral_bajo_stock=10
+            )
+            Producto.objects.create(
+                empresa=company_user,
+                nombre="Pack Jugos Frutales Surtidos",
+                precio=18.50,
+                stock=150,
+                descripcion="Paca termoencogible x 24 unidades",
+                umbral_bajo_stock=10
+            )
+            Producto.objects.create(
+                empresa=company_user,
+                nombre="Agua Mineral Natural 500ml",
+                precio=12.00,
+                stock=50,
+                descripcion="Paca x 24 botellas",
+                umbral_bajo_stock=10
+            )
+
         products_list = []
         for p in Producto.objects.all().select_related('empresa__perfil_empresa'):
             # Determine company name
@@ -75,15 +129,22 @@ def api_productos(request):
             except Exception:
                 co_name = "Distribuidora Mayorista ISBEN"
                 
+            desc = p.descripcion if p.descripcion else "Lote / Paca mayorista"
+            custom_image = None
+            if "||" in desc:
+                parts = desc.split("||")
+                desc = parts[0].strip()
+                custom_image = parts[1].strip()
+
             category = get_product_category(p.nombre)
-            image_url = p.vista_previa.url if p.vista_previa else get_product_image(p.nombre, category)
+            image_url = custom_image if custom_image else (p.vista_previa.url if p.vista_previa else get_product_image(p.nombre, category))
             
             products_list.append({
                 'id': str(p.id),
                 'name': p.nombre,
                 'category': category,
                 'pricePerUnit': float(p.precio),
-                'unitPackName': p.descripcion if p.descripcion else "Lote / Paca mayorista",
+                'unitPackName': desc,
                 'stock': p.stock,
                 'image': image_url,
                 'companyName': co_name,
@@ -108,25 +169,32 @@ def api_productos(request):
             if not company_user:
                 return JsonResponse({'error': 'No se encontró una empresa proveedora registrada.'}, status=400)
                 
+            desc = data.get('unitPackName', 'Lote mayorista')
+            image_input = data.get('image', '')
+            # If custom image is provided, append it to the description
+            if image_input and not image_input.startswith('/groceries_pack') and not image_input.startswith('/beverages_pack') and not image_input.startswith('/cleaning_pack'):
+                desc = f"{desc} || {image_input}"
+
             product = Producto.objects.create(
                 empresa=company_user,
                 nombre=data.get('name'),
                 precio=data.get('pricePerUnit'),
                 stock=data.get('stock', 50),
-                descripcion=data.get('unitPackName', 'Lote mayorista'),
+                descripcion=desc,
                 umbral_bajo_stock=10
             )
             
             category = get_product_category(product.nombre)
+            image_url = image_input if image_input else get_product_image(product.nombre, category)
             
             return JsonResponse({
                 'id': str(product.id),
                 'name': product.nombre,
                 'category': category,
                 'pricePerUnit': float(product.precio),
-                'unitPackName': product.descripcion,
+                'unitPackName': data.get('unitPackName', 'Lote mayorista'),
                 'stock': product.stock,
-                'image': get_product_image(product.nombre, category),
+                'image': image_url,
                 'companyName': company_name,
                 'isLowStock': product.stock <= product.umbral_bajo_stock
             }, status=201)
@@ -135,7 +203,27 @@ def api_productos(request):
 
 @csrf_exempt
 def api_pedidos(request):
-    if request.method != 'POST':
+    if request.method == 'GET':
+        client_name = request.GET.get('clientName', '').strip()
+        orders_list = []
+        orders = Pedido.objects.all().select_related('cliente')
+        if client_name:
+            # We map demo name to actual user if it matches Pepe
+            if "pepe" in client_name.lower():
+                orders = orders.filter(Q(cliente__username__icontains="don_pepe") | Q(cliente__email__icontains="don_pepe") | Q(cliente__username__icontains=client_name))
+            else:
+                orders = orders.filter(Q(cliente__username__icontains=client_name) | Q(cliente__email__icontains=client_name))
+                
+        for o in orders.order_by('-fecha_creacion'):
+            orders_list.append({
+                'id': f"#{1000 + o.id}",
+                'date': o.fecha_creacion.strftime('%d/%m/%Y'),
+                'status': 'Pagado' if o.estado == Pedido.EstadoPedido.PAGADO else ('Entregado' if o.estado == Pedido.EstadoPedido.ENTREGADO else o.get_estado_display()),
+                'total': float(o.monto_total)
+            })
+        return JsonResponse(orders_list, safe=False)
+
+    elif request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
         
     try:
@@ -158,9 +246,12 @@ def api_pedidos(request):
         # For simplicity, group products by company
         created_orders = []
         for prod_id, qty in cart.items():
+            clean_id = prod_id
+            if isinstance(prod_id, str) and '-' in prod_id:
+                clean_id = prod_id.split('-')[-1]
             try:
-                product = Producto.objects.get(id=int(prod_id))
-            except Producto.DoesNotExist:
+                product = Producto.objects.get(id=int(clean_id))
+            except (Producto.DoesNotExist, ValueError):
                 continue
                 
             # Deduct stock
@@ -226,3 +317,108 @@ def api_min_order(request):
             return JsonResponse({'error': 'Datos inválidos'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def api_tests(request):
+    if request.method == 'GET':
+        # Seeding default tests if none exist
+        if ExamenCertificacion.objects.count() == 0:
+            company_user = User.objects.filter(rol=Usuario.Rol.EMPRESA).first()
+            if company_user:
+                ExamenCertificacion.objects.create(
+                    empresa=company_user,
+                    titulo="Certificación Manejo de Cadena de Frío",
+                    descripcion="Evaluación sobre refrigeración y conservación de lácteos y vacunas."
+                )
+                ExamenCertificacion.objects.create(
+                    empresa=company_user,
+                    titulo="Test de Conocimiento de Productos Farmacéuticos",
+                    descripcion="Evaluación obligatoria para la distribución de medicamentos."
+                )
+
+        freelancer_name = request.GET.get('freelancer', '').strip()
+        freelancer_user = None
+        if freelancer_name:
+            freelancer_user = User.objects.filter(username__icontains=freelancer_name, rol=Usuario.Rol.FREELANCER).first()
+            if not freelancer_user:
+                freelancer_user = User.objects.filter(rol=Usuario.Rol.FREELANCER).first()
+
+        tests_list = []
+        for exam in ExamenCertificacion.objects.all().select_related('empresa__perfil_empresa'):
+            try:
+                co_name = exam.empresa.perfil_empresa.nombre_empresa
+            except Exception:
+                co_name = "Proveedor General"
+
+            # Check if this freelancer has passed
+            status = "Pendiente"
+            if freelancer_user:
+                result = ResultadoExamen.objects.filter(freelancer=freelancer_user, examen=exam).first()
+                if result and result.aprobado:
+                    status = "Aprobado"
+
+            tests_list.append({
+                'id': exam.id,
+                'title': exam.titulo,
+                'company': co_name,
+                'status': status
+            })
+        return JsonResponse(tests_list, safe=False)
+
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            # Find the company user
+            company_name = data.get('company', 'Distribuidora Mayorista ISBEN')
+            try:
+                profile = PerfilEmpresa.objects.filter(nombre_empresa__icontains=company_name).first()
+                company_user = profile.usuario if profile else User.objects.filter(rol=Usuario.Rol.EMPRESA).first()
+            except Exception:
+                company_user = User.objects.filter(rol=Usuario.Rol.EMPRESA).first()
+
+            if not company_user:
+                return JsonResponse({'error': 'No se encontró una empresa registrada.'}, status=400)
+
+            exam = ExamenCertificacion.objects.create(
+                empresa=company_user,
+                titulo=data.get('title'),
+                descripcion=data.get('description', '')
+            )
+            return JsonResponse({
+                'id': exam.id,
+                'title': exam.titulo,
+                'company': company_name,
+                'status': 'Pendiente'
+            }, status=201)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+@csrf_exempt
+def api_take_test(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    try:
+        data = json.loads(request.body)
+        test_id = data.get('testId')
+        freelancer_name = data.get('freelancer', '').strip()
+        aprobado = data.get('aprobado', False)
+
+        freelancer_user = User.objects.filter(username__icontains=freelancer_name, rol=Usuario.Rol.FREELANCER).first()
+        if not freelancer_user:
+            freelancer_user = User.objects.filter(rol=Usuario.Rol.FREELANCER).first()
+
+        if not freelancer_user:
+            return JsonResponse({'error': 'Freelancer no encontrado'}, status=400)
+
+        exam = ExamenCertificacion.objects.get(id=int(test_id))
+        
+        # Save or update result
+        result, created = ResultadoExamen.objects.update_or_create(
+            freelancer=freelancer_user,
+            examen=exam,
+            defaults={'aprobado': aprobado}
+        )
+
+        return JsonResponse({'message': 'Resultado registrado con éxito', 'aprobado': result.aprobado})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

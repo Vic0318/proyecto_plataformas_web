@@ -82,12 +82,66 @@ export default function Home() {
   const [currentRole, setCurrentRole] = useState<"tendero" | "empresa" | "freelance" | "admin">("tendero");
   const [username, setUsername] = useState<string>("Abarrotes Don Pepe");
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [isSessionActive, setIsSessionActive] = useState<boolean>(false);
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [cart, setCart] = useState<{ [productId: string]: number }>({});
   const [minOrder, setMinOrder] = useState<number>(60.0);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [depositPercent, setDepositPercent] = useState<number>(100);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
+  const [historyOrders, setHistoryOrders] = useState<Array<{ id: string; date: string; status: string; total: number }>>([
+    { id: "#1024", date: "26/07/2026", status: "Pagado", total: 74.00 },
+    { id: "#1023", date: "25/07/2026", status: "Entregado", total: 128.50 },
+    { id: "#1022", date: "24/07/2026", status: "Entregado", total: 60.00 }
+  ]);
+  const [checkoutResult, setCheckoutResult] = useState<{
+    success: boolean;
+    isRealDb?: boolean;
+    total?: number;
+    paidAmount?: number;
+    depositPercent?: number;
+    errorMsg?: string;
+  } | null>(null);
+
+  // Load session from localStorage on mount
+  useEffect(() => {
+    const savedRole = localStorage.getItem("isben_role");
+    const savedUser = localStorage.getItem("isben_username");
+    const savedViewState = localStorage.getItem("isben_viewState");
+    const savedTheme = localStorage.getItem("isben_theme");
+    
+    if (savedRole && savedUser && savedViewState) {
+      setCurrentRole(savedRole as "tendero" | "empresa" | "freelance" | "admin");
+      setUsername(savedUser);
+      setViewState(savedViewState as "landing" | "portal");
+      setIsSessionActive(true);
+    }
+    if (savedTheme) {
+      setTheme(savedTheme as "light" | "dark");
+    }
+  }, []);
+
+  // Load user order history from backend when history modal opens
+  useEffect(() => {
+    if (isHistoryOpen && isSessionActive) {
+      const fetchHistory = async () => {
+        try {
+          const res = await fetch(`http://localhost:8000/api/pedidos/?clientName=${encodeURIComponent(username)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.length > 0) {
+              setHistoryOrders(data);
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching order history:", err);
+        }
+      };
+      fetchHistory();
+    }
+  }, [isHistoryOpen, isSessionActive, username]);
 
   // Load products and minimum order from API on mount
   useEffect(() => {
@@ -119,13 +173,19 @@ export default function Home() {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    localStorage.setItem("isben_theme", nextTheme);
   };
 
   const handleLoginSuccess = (role: "tendero" | "empresa" | "freelance" | "admin", name: string) => {
     setCurrentRole(role);
     setUsername(name);
     setViewState("portal");
+    setIsSessionActive(true);
+    localStorage.setItem("isben_role", role);
+    localStorage.setItem("isben_username", name);
+    localStorage.setItem("isben_viewState", "portal");
   };
 
   const handleSelectRoleDemo = (role: "tendero" | "empresa" | "freelance" | "admin") => {
@@ -138,10 +198,18 @@ export default function Home() {
     setCurrentRole(role);
     setUsername(name);
     setViewState("portal");
+    setIsSessionActive(true);
+    localStorage.setItem("isben_role", role);
+    localStorage.setItem("isben_username", name);
+    localStorage.setItem("isben_viewState", "portal");
   };
 
   const handleLogout = () => {
     setViewState("landing");
+    setIsSessionActive(false);
+    localStorage.removeItem("isben_role");
+    localStorage.removeItem("isben_username");
+    localStorage.removeItem("isben_viewState");
   };
 
   const handleUpdateQuantity = (productId: string, delta: number) => {
@@ -231,13 +299,49 @@ export default function Home() {
       });
       
       if (response.ok) {
-        alert(`Pedido Confirmado con Éxito en Base de Datos Real (Django)\n\nMonto Total: $${cartTotal.toFixed(2)} USD\nMonto Cobrado por Adelantado (${depositPercent}%): $${paidAmount.toFixed(2)} USD\n\nFacturación generada automáticamente (RF3.4). Transacción PCI-DSS protegida (RNF3.1).`);
+        const resData = await response.json();
+        const orderIdDisplay = resData.orderIds && resData.orderIds.length > 0 
+          ? `#${1000 + resData.orderIds[0]}` 
+          : `#${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const newTx = {
+          id: orderIdDisplay,
+          date: new Date().toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }),
+          status: "Pagado",
+          total: cartTotal
+        };
+        setHistoryOrders(prev => [newTx, ...prev]);
+
+        setCheckoutResult({
+          success: true,
+          isRealDb: true,
+          total: cartTotal,
+          paidAmount: paidAmount,
+          depositPercent: depositPercent
+        });
       } else {
-        alert("Ocurrió un error al procesar el pedido en el servidor.");
+        setCheckoutResult({
+          success: false,
+          errorMsg: "Ocurrio un error al procesar el pedido en el servidor."
+        });
       }
     } catch (err) {
       console.error("Error al realizar pedido:", err);
-      alert(`Pedido Confirmado Localmente (Modo Demo Offline)\n\nMonto Total: $${cartTotal.toFixed(2)} USD\nMonto Cobrado por Adelantado (${depositPercent}%): $${paidAmount.toFixed(2)} USD\n\nFacturación generada automáticamente (RF3.4). Transacción PCI-DSS protegida (RNF3.1).`);
+      const newTx = {
+        id: `#${Math.floor(1000 + Math.random() * 9000)}`,
+        date: new Date().toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" }),
+        status: "Pagado",
+        total: cartTotal
+      };
+      setHistoryOrders(prev => [newTx, ...prev]);
+
+      setCheckoutResult({
+        success: true,
+        isRealDb: false,
+        total: cartTotal,
+        paidAmount: paidAmount,
+        depositPercent: depositPercent
+      });
     }
     
     setCart({});
@@ -253,6 +357,11 @@ export default function Home() {
           onSelectRoleDemo={handleSelectRoleDemo}
           theme={theme}
           onToggleTheme={toggleTheme}
+          isLoggedIn={isSessionActive}
+          onGoToPortal={() => {
+            setViewState("portal");
+            localStorage.setItem("isben_viewState", "portal");
+          }}
         />
       ) : (
         /* Logged-in User Portal */
@@ -261,13 +370,18 @@ export default function Home() {
             currentRole={currentRole}
             username={username}
             onLogout={handleLogout}
-            onGoHome={() => setViewState("landing")}
+            onGoHome={() => {
+              setViewState("landing");
+              localStorage.setItem("isben_viewState", "landing");
+            }}
             theme={theme}
             onToggleTheme={toggleTheme}
             cartCount={cartCount}
             cartTotal={cartTotal}
             minOrder={minOrder}
             onOpenCart={() => setIsCartOpen(true)}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenHistory={() => setIsHistoryOpen(true)}
           />
 
           <main className="container" style={{ flex: 1 }}>
@@ -288,6 +402,7 @@ export default function Home() {
                 minOrder={minOrder}
                 onUpdateMinOrder={handleUpdateMinOrder}
                 onAddProduct={handleAddProduct}
+                companyName={username}
               />
             )}
 
@@ -295,6 +410,7 @@ export default function Home() {
               <FreelancePortal
                 products={products}
                 onPlaceOrderForClient={handlePlaceOrderForClient}
+                freelancerName={username}
               />
             )}
 
@@ -421,6 +537,162 @@ export default function Home() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {isSettingsOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "500px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Configuracion de Usuario</h3>
+              <button onClick={() => setIsSettingsOpen(false)} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-primary)" }}>✕</button>
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginBottom: "1.5rem" }}>
+              <div>
+                <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "0.4rem" }}>Idioma de la Interfaz</label>
+                <select style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}>
+                  <option>Espanol (America Latina)</option>
+                  <option>English (US)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "0.4rem" }}>Moneda de Transaccion</label>
+                <select style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}>
+                  <option>USD - Dolares Americanos</option>
+                  <option>EUR - Euros</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "0.5rem" }}>Notificaciones del Sistema</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer" }}>
+                    <input type="checkbox" defaultChecked style={{ width: "16px", height: "16px" }} />
+                    Alertas de stock bajo de productos
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer" }}>
+                    <input type="checkbox" defaultChecked style={{ width: "16px", height: "16px" }} />
+                    Confirmaciones de entrega de pedidos
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={() => setIsSettingsOpen(false)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+              Guardar Cambios
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {isHistoryOpen && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "600px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+              <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Historial de Transacciones</h3>
+              <button onClick={() => setIsHistoryOpen(false)} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-primary)" }}>✕</button>
+            </div>
+
+            <div style={{ maxHeight: "320px", overflowY: "auto", marginBottom: "1.5rem" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.9rem" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-secondary)" }}>
+                    <th style={{ padding: "0.5rem" }}>Pedido</th>
+                    <th style={{ padding: "0.5rem" }}>Fecha</th>
+                    <th style={{ padding: "0.5rem" }}>Estado</th>
+                    <th style={{ padding: "0.5rem", textAlign: "right" }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyOrders.map((o) => (
+                    <tr key={o.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                      <td style={{ padding: "0.75rem 0.5rem", fontWeight: 700 }}>{o.id}</td>
+                      <td style={{ padding: "0.75rem 0.5rem" }}>{o.date}</td>
+                      <td style={{ padding: "0.75rem 0.5rem" }}>
+                        <span style={{ 
+                          background: o.status === "Pagado" ? "rgba(13, 148, 136, 0.15)" : "rgba(16,185,129,0.15)", 
+                          color: "var(--accent-teal)", 
+                          padding: "2px 8px", 
+                          borderRadius: "var(--radius-sm)", 
+                          fontSize: "0.75rem", 
+                          fontWeight: 700 
+                        }}>
+                          {o.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", fontWeight: 800 }}>${o.total.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <button onClick={() => setIsHistoryOpen(false)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Checkout Success / Result Modal */}
+      {checkoutResult && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 350, padding: "1rem" }}>
+          <div className="card-clean" style={{ width: "100%", maxWidth: "480px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
+            
+            {checkoutResult.success ? (
+              <>
+                <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(13, 148, 136, 0.1)", color: "var(--accent-teal)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
+                  <IconShieldCheck size={36} />
+                </div>
+                
+                <h3 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
+                  Pedido Confirmado con Exito
+                </h3>
+                
+                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
+                  {checkoutResult.isRealDb 
+                    ? "Transaccion registrada en la base de datos real." 
+                    : "Transaccion guardada localmente de manera exitosa."}
+                </p>
+                
+                <div style={{ background: "var(--bg-tertiary)", padding: "1.25rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", textAlign: "left", display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
+                    <span style={{ color: "var(--text-secondary)" }}>Monto Total:</span>
+                    <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>${checkoutResult.total?.toFixed(2)} USD</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
+                    <span style={{ color: "var(--text-secondary)" }}>Cobro Adelantado ({checkoutResult.depositPercent}%):</span>
+                    <span style={{ fontWeight: 700, color: "var(--accent-teal)" }}>${checkoutResult.paidAmount?.toFixed(2)} USD</span>
+                  </div>
+                  <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "0.5rem", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.4 }}>
+                    Facturacion generada automaticamente. Transaccion protegida de acuerdo a normativas de seguridad de datos.
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(239, 68, 68, 0.1)", color: "var(--danger)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
+                  ✕
+                </div>
+                
+                <h3 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
+                  Error al Procesar Pedido
+                </h3>
+                
+                <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
+                  {checkoutResult.errorMsg}
+                </p>
+              </>
+            )}
+            
+            <button onClick={() => setCheckoutResult(null)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+              Aceptar
+            </button>
           </div>
         </div>
       )}

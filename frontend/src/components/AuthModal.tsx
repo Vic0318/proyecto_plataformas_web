@@ -35,7 +35,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
         return;
       }
       
-      onLoginSuccess(data.rol as "tendero" | "empresa" | "freelance" | "admin", data.name);
+      const mappedRole = data.rol === "freelancer" ? "freelance" : data.rol;
+      onLoginSuccess(mappedRole as "tendero" | "empresa" | "freelance" | "admin", data.name);
       onClose();
     } catch (err) {
       setErrorMsg("No se pudo conectar con el servidor backend de Django.");

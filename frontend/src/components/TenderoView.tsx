@@ -160,9 +160,11 @@ export const TenderoView: React.FC<TenderoViewProps> = ({
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
                   <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)" }}>{product.companyName}</span>
-                  <span className={`badge-clean ${product.stock < 15 ? "badge-clean-primary" : "badge-clean-success"}`}>
-                    {product.stock < 15 ? `Stock: ${product.stock}` : `Stock disponible`}
-                  </span>
+                  {product.stock < 15 && (
+                    <span className="badge-clean badge-clean-primary" style={{ padding: "2px 8px", fontSize: "0.7rem", fontWeight: 800 }}>
+                      Stock Bajo
+                    </span>
+                  )}
                 </div>
 
                 <div style={{ width: "100%", height: "160px", borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--bg-tertiary)", marginBottom: "1rem" }}>
@@ -170,9 +172,29 @@ export const TenderoView: React.FC<TenderoViewProps> = ({
                 </div>
 
                 <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.2rem" }}>{product.name}</h3>
-                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "4px" }}>
+                <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "0.75rem", display: "flex", alignItems: "center", gap: "4px" }}>
                   <IconPackage size={14} /> {product.unitPackName}
                 </p>
+
+                {/* Expanded Stock Level Block */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%", marginBottom: "1.25rem", padding: "0.5rem 0.75rem", background: "var(--bg-tertiary)", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", fontWeight: 700 }}>
+                    <span style={{ color: product.stock < 15 ? "var(--primary)" : "var(--accent-teal)" }}>
+                      {product.stock < 15 ? `Stock bajo: ${product.stock} pacas` : `Stock disponible: ${product.stock} pacas`}
+                    </span>
+                    <span style={{ color: "var(--text-secondary)" }}>{product.stock} disp.</span>
+                  </div>
+                  <div style={{ width: "100%", height: "6px", background: "var(--bg-secondary)", borderRadius: "3px", overflow: "hidden", marginTop: "2px" }}>
+                    <div 
+                      style={{ 
+                        width: `${Math.min(100, (product.stock / 100) * 100)}%`, 
+                        height: "100%", 
+                        background: product.stock < 15 ? "linear-gradient(90deg, var(--primary) 0%, #ff7849 100%)" : "linear-gradient(90deg, var(--accent-teal) 0%, #2dd4bf 100%)",
+                        transition: "width 0.4s ease" 
+                      }} 
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>

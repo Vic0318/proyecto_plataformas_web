@@ -16,6 +16,8 @@ interface LandingPageProps {
   onSelectRoleDemo: (role: "tendero" | "empresa" | "freelance" | "admin") => void;
   theme: "light" | "dark";
   onToggleTheme: () => void;
+  isLoggedIn?: boolean;
+  onGoToPortal?: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
@@ -23,6 +25,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onSelectRoleDemo,
   theme,
   onToggleTheme,
+  isLoggedIn = false,
+  onGoToPortal,
 }) => {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -81,13 +85,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               {theme === "light" ? "Oscuro" : "Claro"}
             </button>
 
-            <button
-              onClick={onOpenLogin}
-              className="btn btn-primary"
-              style={{ padding: "8px 20px" }}
-            >
-              Iniciar Sesión
-            </button>
+            {isLoggedIn ? (
+              <button
+                onClick={onGoToPortal}
+                className="btn btn-primary"
+                style={{ padding: "8px 20px" }}
+              >
+                Ir al Portal
+              </button>
+            ) : (
+              <button
+                onClick={onOpenLogin}
+                className="btn btn-primary"
+                style={{ padding: "8px 20px" }}
+              >
+                Iniciar Sesión
+              </button>
+            )}
           </div>
 
         </div>
@@ -137,9 +151,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </p>
 
           <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap", marginBottom: "3.5rem" }}>
-            <button onClick={onOpenLogin} className="btn btn-primary" style={{ padding: "0.9rem 2rem", fontSize: "1.05rem" }}>
-              Ingresar a la Plataforma <IconArrowRight size={18} />
-            </button>
+            {isLoggedIn ? (
+              <button onClick={onGoToPortal} className="btn btn-primary" style={{ padding: "0.9rem 2rem", fontSize: "1.05rem" }}>
+                Volver a la Plataforma <IconArrowRight size={18} />
+              </button>
+            ) : (
+              <button onClick={onOpenLogin} className="btn btn-primary" style={{ padding: "0.9rem 2rem", fontSize: "1.05rem" }}>
+                Ingresar a la Plataforma <IconArrowRight size={18} />
+              </button>
+            )}
             <a href="#soluciones" className="btn btn-outline" style={{ padding: "0.9rem 2rem", fontSize: "1.05rem" }}>
               Descubrir Soluciones
             </a>
@@ -190,57 +210,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="container">
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <h2 style={{ fontSize: "2.2rem", fontWeight: 800 }}>Diseñado para cada Actor del Comercio Mayorista</h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: "1rem" }}>Accede al portal correspondiente según tu rol corporativo</p>
+            <p style={{ color: "var(--text-secondary)", fontSize: "1rem" }}>Conoce las herramientas diseñadas para cada rol corporativo</p>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem" }}>
             
             {/* Card 1: Tendero */}
-            <div id="tenderos" className="card-clean" style={{ padding: "2rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div id="tenderos" className="card-clean" style={{ padding: "2rem", display: "flex", flexDirection: "column" }}>
               <div>
                 <div style={{ width: "50px", height: "50px", borderRadius: "var(--radius-md)", background: "rgba(253, 77, 1, 0.1)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem" }}>
                   <IconStore size={26} />
                 </div>
                 <h3 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.5rem" }}>Para Tenderos (Clientes)</h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
                   Realiza pedidos al por mayor directamente a las fábricas. Sin intermediarios innecesarios, con montos mínimos claros ($60 - $80 USD) y confirmación transparente.
                 </p>
               </div>
-              <button onClick={() => onSelectRoleDemo("tendero")} className="btn btn-outline" style={{ width: "100%" }}>
-                Ingresar como Tendero <IconArrowRight size={16} />
-              </button>
             </div>
 
             {/* Card 2: Empresa */}
-            <div id="empresas" className="card-clean" style={{ padding: "2rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div id="empresas" className="card-clean" style={{ padding: "2rem", display: "flex", flexDirection: "column" }}>
               <div>
                 <div style={{ width: "50px", height: "50px", borderRadius: "var(--radius-md)", background: "rgba(15, 23, 42, 0.1)", color: "var(--secondary)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem" }}>
                   <IconFactory size={26} />
                 </div>
                 <h3 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.5rem" }}>Para Empresas (Proveedores)</h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
                   Publica tu catálogo mayorista, recibe alertas de stock bajo, conecta tu sistema contable ERP y certifica vendedores con evaluaciones especializadas.
                 </p>
               </div>
-              <button onClick={() => onSelectRoleDemo("empresa")} className="btn btn-outline" style={{ width: "100%" }}>
-                Ingresar como Empresa <IconArrowRight size={16} />
-              </button>
             </div>
 
             {/* Card 3: Freelance */}
-            <div id="freelancers" className="card-clean" style={{ padding: "2rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div id="freelancers" className="card-clean" style={{ padding: "2rem", display: "flex", flexDirection: "column" }}>
               <div>
                 <div style={{ width: "50px", height: "50px", borderRadius: "var(--radius-md)", background: "rgba(13, 148, 136, 0.1)", color: "var(--accent-teal)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "1.25rem" }}>
                   <IconBriefcase size={26} />
                 </div>
                 <h3 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.5rem" }}>Para Vendedores Freelance</h3>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
                   Registra compras a nombre de tus clientes, gana comisiones calculadas automáticamente y mantenlas aseguradas hasta la entrega efectiva del producto.
                 </p>
               </div>
-              <button onClick={() => onSelectRoleDemo("freelance")} className="btn btn-outline" style={{ width: "100%" }}>
-                Ingresar como Freelance <IconArrowRight size={16} />
-              </button>
             </div>
 
           </div>

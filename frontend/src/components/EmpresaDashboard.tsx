@@ -15,6 +15,7 @@ interface EmpresaDashboardProps {
   minOrder: number;
   onUpdateMinOrder: (newMin: number) => void;
   onAddProduct: (newProd: Omit<Product, "id">) => void;
+  companyName?: string;
 }
 
 export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
@@ -22,9 +23,11 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   minOrder,
   onUpdateMinOrder,
   onAddProduct,
+  companyName = "Distribuidora Mayorista ISBEN",
 }) => {
   const [minOrderInput, setMinOrderInput] = useState<number>(minOrder);
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
 
   // New product form state
   const [name, setName] = useState("");
@@ -32,6 +35,7 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   const [price, setPrice] = useState(25.0);
   const [unitPack, setUnitPack] = useState("Paca de 12 unidades");
   const [stock, setStock] = useState(100);
+  const [image, setImage] = useState("");
 
   const [tests, setTests] = useState([
     { id: 1, title: "Certificación Manejo de Cadena de Frío", company: "Lácteos del Sur", passScore: "80%" },
@@ -39,9 +43,34 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   ]);
   const [newTestTitle, setNewTestTitle] = useState("");
 
+  // Load tests from backend on mount
+  React.useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/tests/");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            const mapped = data.map((t: any) => ({
+              id: t.id,
+              title: t.title,
+              company: t.company,
+              passScore: "85%"
+            }));
+            setTests(mapped);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading tests:", err);
+      }
+    };
+    fetchTests();
+  }, []);
+
   const handleSaveMinOrder = () => {
     onUpdateMinOrder(minOrderInput);
-    alert(`Monto mínimo de compra actualizado a $${minOrderInput} USD`);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
 
   const handleCreateProduct = (e: React.FormEvent) => {
@@ -52,17 +81,40 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
       pricePerUnit: Number(price),
       unitPackName: unitPack,
       stock: Number(stock),
-      image: "/groceries_pack.png",
+      image: image.trim(),
       companyName: "Distribuidora Mayorista ISBEN",
     });
     setShowAddModal(false);
     setName("");
+    setImage("");
   };
 
-  const handleCreateTest = (e: React.FormEvent) => {
+  const handleCreateTest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTestTitle) return;
-    setTests([...tests, { id: Date.now(), title: newTestTitle, company: "Distribuidora Mayorista ISBEN", passScore: "85%" }]);
+    
+    try {
+      const response = await fetch("http://localhost:8000/api/tests/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: newTestTitle,
+          company: companyName,
+          description: "Evaluacion creada desde el Panel de Empresa"
+        }),
+      });
+      if (response.ok) {
+        const createdTest = await response.json();
+        setTests(prev => [...prev, { id: createdTest.id, title: createdTest.title, company: createdTest.company, passScore: "85%" }]);
+      } else {
+        setTests(prev => [...prev, { id: Date.now(), title: newTestTitle, company: companyName, passScore: "85%" }]);
+      }
+    } catch (err) {
+      console.error("Error creating test in backend:", err);
+      setTests(prev => [...prev, { id: Date.now(), title: newTestTitle, company: companyName, passScore: "85%" }]);
+    }
     setNewTestTitle("");
   };
 
@@ -111,10 +163,10 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
       {/* Main 2-Column Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem", marginBottom: "2rem" }}>
         
-        {/* Configuración de Monto Mínimo de Pedido (RF3.3) */}
+        {/* Configuración de Monto Mínimo de Pedido */}
         <div className="card-clean" style={{ padding: "1.5rem" }}>
           <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-            Monto Mínimo de Compra (RF3.3)
+            Monto Mínimo de Compra
           </h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
             Establece el límite mínimo en dólares que los tenderos deben alcanzar para procesar un pedido mayorista.
@@ -142,12 +194,17 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
               Guardar
             </button>
           </div>
+          {saveSuccess && (
+            <div style={{ fontSize: "0.8rem", color: "var(--accent-teal)", marginTop: "0.5rem", fontWeight: 600 }}>
+              Monto minimo de compra actualizado con exito.
+            </div>
+          )}
         </div>
 
-        {/* Conexión ERP / Sistema Contable (RF2.4) */}
+        {/* Conexión ERP / Sistema Contable */}
         <div className="card-clean" style={{ padding: "1.5rem" }}>
           <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-            Integración ERP y Sistema Contable (RF2.4)
+            Integración ERP y Sistema Contable
           </h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
             Sincronización automática de inventario y facturas vía API REST con tu sistema externo (ej. SAP, QuickBooks).
@@ -166,7 +223,7 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
       <div className="card-clean" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
           <div>
-            <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Catálogo e Inventario Mayorista (RF2.1 / RF2.2)</h3>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Catálogo e Inventario Mayorista</h3>
             <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>Supervisa las existencias y recibe alertas de stock bajo</p>
           </div>
           <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ gap: "6px" }}>
@@ -201,7 +258,7 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
                   <td style={{ padding: "0.75rem" }}>
                     {p.stock < 20 ? (
                       <span className="badge-clean badge-clean-primary" style={{ gap: "4px" }}>
-                        <IconAlertTriangle size={14} /> Stock Bajo (RF2.3)
+                        <IconAlertTriangle size={14} /> Stock Bajo
                       </span>
                     ) : (
                       <span className="badge-clean badge-clean-success" style={{ gap: "4px" }}>
@@ -216,10 +273,10 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
         </div>
       </div>
 
-      {/* Module: Certification Tests for Freelancers (RF1.2 / RF1.3) */}
+      {/* Module: Certification Tests for Freelancers */}
       <div className="card-clean" style={{ padding: "1.5rem" }}>
         <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-          Evaluación de Perfiles Calificados para Freelancers (RF1.2 / RF1.3)
+          Evaluación de Perfiles Calificados para Freelancers
         </h3>
         <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.25rem" }}>
           Las empresas que requieren perfiles certificados pueden crear evaluaciones obligatorias aquí.
@@ -287,6 +344,10 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
               <div>
                 <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Presentación de Paca/Caja</label>
                 <input required type="text" value={unitPack} onChange={(e) => setUnitPack(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "0.8rem", fontWeight: 600 }}>Imagen del Producto (URL o ruta local, opcional)</label>
+                <input type="text" placeholder="https://ejemplo.com/imagen.jpg o ruta local" value={image} onChange={(e) => setImage(e.target.value)} style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }} />
               </div>
               <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
                 <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-outline" style={{ flex: 1 }}>Cancelar</button>

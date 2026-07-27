@@ -7,7 +7,9 @@ import {
   IconMoon,
   IconLogOut,
   IconStore,
-  IconChevronDown
+  IconChevronDown,
+  IconSettings,
+  IconList
 } from "@/components/Icons";
 
 interface HeaderProps {
@@ -21,6 +23,8 @@ interface HeaderProps {
   cartTotal: number;
   minOrder: number;
   onOpenCart: () => void;
+  onOpenSettings?: () => void;
+  onOpenHistory?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,6 +38,8 @@ export const Header: React.FC<HeaderProps> = ({
   cartTotal,
   minOrder,
   onOpenCart,
+  onOpenSettings,
+  onOpenHistory,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isMinOrderReached = cartTotal >= minOrder;
@@ -183,6 +189,46 @@ export const Header: React.FC<HeaderProps> = ({
                   }}
                 >
                   <IconStore size={16} /> Ir a Página de Inicio
+                </button>
+
+                <button
+                  onClick={() => { setIsDropdownOpen(false); onOpenSettings?.(); }}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "0.5rem 0.75rem",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: "var(--radius-sm)",
+                    cursor: "pointer",
+                    fontSize: "0.85rem",
+                    color: "var(--text-primary)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  <IconSettings size={16} /> Configuración
+                </button>
+
+                <button
+                  onClick={() => { setIsDropdownOpen(false); onOpenHistory?.(); }}
+                  style={{
+                    width: "100%",
+                    textAlign: "left",
+                    padding: "0.5rem 0.75rem",
+                    background: "transparent",
+                    border: "none",
+                    borderRadius: "var(--radius-sm)",
+                    cursor: "pointer",
+                    fontSize: "0.85rem",
+                    color: "var(--text-primary)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  <IconList size={16} /> Historial y Reportes
                 </button>
 
                 <button
