@@ -18,9 +18,14 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from marketplace import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/login/', views.api_login),
+    path('api/productos/', views.api_productos),
+    path('api/pedidos/', views.api_pedidos),
+    path('api/min-order/', views.api_min_order),
 ]
 
 if settings.DEBUG:

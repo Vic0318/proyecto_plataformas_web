@@ -89,6 +89,30 @@ export default function Home() {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [depositPercent, setDepositPercent] = useState<number>(100);
 
+  // Load products and minimum order from API on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const prodRes = await fetch("http://localhost:8000/api/productos/");
+        if (prodRes.ok) {
+          const prods = await prodRes.json();
+          if (prods && prods.length > 0) {
+            setProducts(prods);
+          }
+        }
+        
+        const minOrderRes = await fetch("http://localhost:8000/api/min-order/");
+        if (minOrderRes.ok) {
+          const minData = await minOrderRes.json();
+          setMinOrder(minData.minOrder);
+        }
+      } catch (err) {
+        console.error("Error cargando datos del backend:", err);
+      }
+    };
+    loadData();
+  }, []);
+
   // Theme synchronization
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -133,16 +157,52 @@ export default function Home() {
     });
   };
 
-  const handleAddProduct = (newProd: Omit<Product, "id">) => {
-    const created: Product = {
-      ...newProd,
-      id: `prod-${Date.now()}`,
-    };
-    setProducts([created, ...products]);
+  const handleAddProduct = async (newProd: Omit<Product, "id">) => {
+    try {
+      const response = await fetch("http://localhost:8000/api/productos/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProd),
+      });
+      if (response.ok) {
+        const createdProd = await response.json();
+        setProducts((prev) => [createdProd, ...prev]);
+      } else {
+        const created: Product = {
+          ...newProd,
+          id: `prod-${Date.now()}`,
+        };
+        setProducts((prev) => [created, ...prev]);
+      }
+    } catch (err) {
+      console.error("Error al crear producto en backend:", err);
+      const created: Product = {
+        ...newProd,
+        id: `prod-${Date.now()}`,
+      };
+      setProducts((prev) => [created, ...prev]);
+    }
   };
 
   const handlePlaceOrderForClient = (clientName: string, productId: string, quantity: number) => {
     handleUpdateQuantity(productId, quantity);
+  };
+
+  const handleUpdateMinOrder = async (newMin: number) => {
+    setMinOrder(newMin);
+    try {
+      await fetch("http://localhost:8000/api/min-order/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ minOrder: newMin }),
+      });
+    } catch (err) {
+      console.error("Error actualizando monto mínimo:", err);
+    }
   };
 
   // Calculations
@@ -155,9 +215,31 @@ export default function Home() {
 
   const isMinOrderReached = cartTotal >= minOrder;
 
-  const handleCompletePayment = () => {
+  const handleCompletePayment = async () => {
     const paidAmount = (cartTotal * depositPercent) / 100;
-    alert(`Pedido Confirmado con Éxito\n\nMonto Total: $${cartTotal.toFixed(2)} USD\nMonto Cobrado por Adelantado (${depositPercent}%): $${paidAmount.toFixed(2)} USD\n\nFacturación generada automáticamente (RF3.4). Transacción PCI-DSS protegida (RNF3.1).`);
+    
+    try {
+      const response = await fetch("http://localhost:8000/api/pedidos/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          cart,
+          clientName: username,
+        }),
+      });
+      
+      if (response.ok) {
+        alert(`Pedido Confirmado con Éxito en Base de Datos Real (Django)\n\nMonto Total: $${cartTotal.toFixed(2)} USD\nMonto Cobrado por Adelantado (${depositPercent}%): $${paidAmount.toFixed(2)} USD\n\nFacturación generada automáticamente (RF3.4). Transacción PCI-DSS protegida (RNF3.1).`);
+      } else {
+        alert("Ocurrió un error al procesar el pedido en el servidor.");
+      }
+    } catch (err) {
+      console.error("Error al realizar pedido:", err);
+      alert(`Pedido Confirmado Localmente (Modo Demo Offline)\n\nMonto Total: $${cartTotal.toFixed(2)} USD\nMonto Cobrado por Adelantado (${depositPercent}%): $${paidAmount.toFixed(2)} USD\n\nFacturación generada automáticamente (RF3.4). Transacción PCI-DSS protegida (RNF3.1).`);
+    }
+    
     setCart({});
     setIsCartOpen(false);
   };
@@ -204,7 +286,7 @@ export default function Home() {
               <EmpresaDashboard
                 products={products}
                 minOrder={minOrder}
-                onUpdateMinOrder={setMinOrder}
+                onUpdateMinOrder={handleUpdateMinOrder}
                 onAddProduct={handleAddProduct}
               />
             )}

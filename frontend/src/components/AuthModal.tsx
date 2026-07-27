@@ -15,26 +15,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
     
-    const lowerEmail = email.trim().toLowerCase();
-    
-    if (lowerEmail === "donpepe@tiendita.com" && password === "tenderopassword123") {
-      onLoginSuccess("tendero", "Abarrotes Don Pepe");
+    try {
+      const response = await fetch("http://localhost:8000/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setErrorMsg(data.error || "Error de inicio de sesión.");
+        return;
+      }
+      
+      onLoginSuccess(data.rol as "tendero" | "empresa" | "freelance" | "admin", data.name);
       onClose();
-    } else if (lowerEmail === "proveedor@isben.com" && password === "empresapassword123") {
-      onLoginSuccess("empresa", "Distribuidora Mayorista ISBEN");
-      onClose();
-    } else if (lowerEmail === "carlos.vendedor@freelance.com" && password === "freelancepassword123") {
-      onLoginSuccess("freelance", "Carlos Vendedor Freelance");
-      onClose();
-    } else if (lowerEmail === "admin@isben.com" && password === "adminpassword123") {
-      onLoginSuccess("admin", "Administrador Sistema");
-      onClose();
-    } else {
-      setErrorMsg("Correo o contraseña incorrectos. Revisa las credenciales.");
+    } catch (err) {
+      setErrorMsg("No se pudo conectar con el servidor backend de Django.");
     }
   };
 

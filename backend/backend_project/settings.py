@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'marketplace.Usuario'
 
 MIDDLEWARE = [
+    'backend_project.middleware.CORSMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
