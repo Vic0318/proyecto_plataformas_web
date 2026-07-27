@@ -68,14 +68,24 @@ cd proyecto_plataformas_web
    ```bash
    cd backend
    ```
-2. Activa el entorno virtual:
-   * **Windows**: `venv\Scripts\activate`
-   * **Mac/Linux**: `source venv/bin/activate`
-3. Inicia el servidor:
+2. Crea y activa el entorno virtual:
+   * **Windows**: `python -m venv venv` → `venv\Scripts\activate`
+   * **Mac/Linux**: `python3 -m venv venv` → `source venv/bin/activate`
+3. Instala las dependencias:
    ```bash
+   pip install -r requirements.txt
+   ```
+4. Configura las variables de entorno:
+   ```bash
+   cp .env.example .env
+   # Edita .env y reemplaza DJANGO_SECRET_KEY con una clave real
+   ```
+5. Aplica las migraciones y arranca el servidor:
+   ```bash
+   python manage.py migrate
    python manage.py runserver
    ```
-4. El backend estará activo en: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+6. El backend estará activo en: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
 
 ---
 
@@ -95,15 +105,23 @@ Para facilitar la evaluación, utiliza estas credenciales (se auto-pueblan en la
 ## 🔌 API Endpoints Habilitados (`/api/`)
 
 * `POST /api/login/` - Autenticación de usuarios y mapeo de roles.
-* `GET /api/productos/` - Listar productos (se auto-pueblan productos por defecto si la BD está vacía).
+* `POST /api/logout/` - Cierre de sesión e invalidación del token activo.
+* `GET /api/productos/` - Listar productos (se auto-pueblan por defecto si la BD está vacía).
 * `POST /api/productos/` - Creación de nuevos productos con soporte de imagen personalizada.
+* `PUT /api/productos/` - Editar un producto existente.
+* `DELETE /api/productos/` - Eliminar un producto.
 * `GET /api/pedidos/` - Listar transacciones históricas filtradas por usuario.
-* `POST /api/pedidos/` - Registrar compra, descontar stock de producto y calcular comisión.
+* `POST /api/pedidos/` - Registrar compra, descontar stock y calcular comisión (5%).
 * `GET /api/min-order/` - Consultar monto mínimo de compra.
 * `POST /api/min-order/` - Actualizar monto mínimo de compra.
 * `GET /api/tests/` - Listar exámenes de certificación y estado del freelancer.
 * `POST /api/tests/` - Crear nuevas pruebas desde el panel de empresa.
+* `PUT /api/tests/` - Editar un examen existente.
+* `DELETE /api/tests/` - Eliminar un examen.
 * `POST /api/tests/take/` - Registrar la aprobación de un examen por el freelancer.
+
+> **Autenticación**: todos los endpoints excepto `/api/login/` requieren el header
+> `Authorization: Token <token>` obtenido al hacer login.
 
 ---
 
@@ -111,13 +129,16 @@ Para facilitar la evaluación, utiliza estas credenciales (se auto-pueblan en la
 
 ```
 proyecto_plataformas_web/
-├── backend/            # Proyecto Django (Base de datos SQLite y APIs)
-│   ├── backend_project/
-│   └── marketplace/    # Modelos, vistas y lógica comercial
-├── frontend/           # Proyecto Next.js (TypeScript y CSS Vanilla)
+├── backend/                  # Proyecto Django (Base de datos SQLite y APIs)
+│   ├── backend_project/      # Configuración principal (settings, urls)
+│   ├── marketplace/          # Modelos, vistas, tests y lógica comercial
+│   ├── requirements.txt      # Dependencias Python (pip install -r requirements.txt)
+│   ├── .env.example          # Plantilla de variables de entorno (copiar como .env)
+│   └── .env                  # Variables secretas locales — NO se sube al repo
+├── frontend/                 # Proyecto Next.js (TypeScript y CSS Vanilla)
 │   ├── src/
-│   │   ├── app/        # Rutas principales y estilos globales
-│   │   └── components/ # Componentes (TenderoView, EmpresaDashboard, FreelancePortal, etc.)
-│   └── public/         # Assets e imágenes
-└── docs/               # Documentación y requisitos del proyecto
+│   │   ├── app/              # Rutas principales y estilos globales
+│   │   └── components/       # Componentes por rol (TenderoView, EmpresaDashboard, etc.)
+│   └── public/               # Assets e imágenes
+└── docs/                     # Documentación y requisitos del proyecto
 ```
