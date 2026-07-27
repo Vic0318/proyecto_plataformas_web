@@ -37,17 +37,22 @@ cd proyecto_plataformas_web
 
 ### 3. Ejecutar el Frontend (Next.js)
 
-1. **Instalar dependencias:**
+1. **Ingresa a la carpeta del frontend:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Instalar dependencias:**
    ```bash
    npm install
    ```
 
-2. **Iniciar el servidor de desarrollo:**
+3. **Iniciar el servidor de desarrollo:**
    ```bash
    npm run dev
    ```
 
-3. **Abrir en el navegador:**
+4. **Abrir en el navegador:**
    Ingresa a [http://localhost:3000](http://localhost:3000) en tu navegador web.
 
 ---
@@ -93,12 +98,12 @@ Dentro de la aplicación puedes interactuar con los siguientes roles del sistema
 ```
 proyecto_plataformas_web/
 ├── backend/            # Proyecto Django (API backend, base de datos SQLite)
-├── docs/               # Documentación técnica, requisitos y planes
-├── public/             # Assets e imágenes estáticas (Logos de ISBEN)
-├── src/
-│   ├── app/            # Next.js App Router (layout.tsx, globals.css, page.tsx)
-│   └── components/     # Componentes de la interfaz de usuario
-├── package.json        # Configuración del proyecto y dependencias
+├── frontend/           # Proyecto Next.js (frontend)
+│   ├── public/         # Assets e imágenes estáticas (Logos de ISBEN)
+│   └── src/
+│       ├── app/        # Next.js App Router (layout.tsx, globals.css, page.tsx)
+│       └── components/ # Componentes de la interfaz de usuario
+├── docs/               # Documentación técnica, requisitos, recursos y planes
 └── README.md           # Guía principal del proyecto
 ```
 
