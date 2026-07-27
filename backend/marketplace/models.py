@@ -1,7 +1,9 @@
 import uuid
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 class Usuario(AbstractUser):
     class Rol(models.TextChoices):
@@ -259,8 +261,15 @@ class Pago(models.Model):
         return f"Pago de ${self.monto_pagado} para Pedido #{self.pedido.id}"
 
 
+def _expiracion_default():
+    """Retorna la fecha/hora de expiracion: 24 horas desde ahora."""
+    return timezone.now() + timedelta(hours=24)
+
+
 class TokenSesion(models.Model):
-    """Token simple de autenticacion por sesion para proteger los endpoints de la API."""
+    """Token simple de autenticacion por sesion para proteger los endpoints de la API.
+    Expira automaticamente 24 horas despues de su creacion.
+    """
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, verbose_name="Token")
     usuario = models.ForeignKey(
         Usuario,
@@ -269,10 +278,18 @@ class TokenSesion(models.Model):
         verbose_name="Usuario"
     )
     creado = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de Creacion")
+    expira = models.DateTimeField(
+        default=_expiracion_default,
+        verbose_name="Fecha de Expiracion"
+    )
 
     class Meta:
         verbose_name = "Token de Sesion"
         verbose_name_plural = "Tokens de Sesion"
 
+    def esta_vigente(self):
+        """Retorna True si el token no ha expirado."""
+        return timezone.now() < self.expira
+
     def __str__(self):
-        return f"Token de {self.usuario.username}"
+        return f"Token de {self.usuario.username} (expira: {self.expira.strftime('%Y-%m-%d %H:%M')} UTC)"

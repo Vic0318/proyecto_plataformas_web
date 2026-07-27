@@ -13,7 +13,7 @@ User = get_user_model()
 
 def requiere_token(view_func):
     """Decorador que protege un endpoint exigiendo el header 'Authorization: Token <token>'.
-    Si el token es invalido o falta, retorna la pagina 401.html personalizada.
+    Rechaza con 401 si el token es invalido, no existe, o ha expirado (> 24h).
     """
     @functools.wraps(view_func)
     def wrapper(request, *args, **kwargs):
@@ -22,7 +22,12 @@ def requiere_token(view_func):
             return render(request, '401.html', status=401)
         token_value = auth_header.split(' ', 1)[1].strip()
         try:
+            from django.utils import timezone
             token_obj = TokenSesion.objects.select_related('usuario').get(token=token_value)
+            # Verificar que el token no haya expirado
+            if not token_obj.esta_vigente():
+                token_obj.delete()  # Eliminar token vencido de la BD
+                return render(request, '401.html', status=401)
             request.user_token = token_obj.usuario
         except (TokenSesion.DoesNotExist, Exception):
             return render(request, '401.html', status=401)
@@ -371,6 +376,7 @@ def api_pedidos(request):
         return JsonResponse({'error': str(e)}, status=400)
 
 @csrf_exempt
+@requiere_token
 def api_min_order(request):
     # Find first company profile
     profile = PerfilEmpresa.objects.first()
@@ -510,6 +516,7 @@ def api_tests(request):
         return JsonResponse({'error': 'ID de examen no proporcionado'}, status=400)
 
 @csrf_exempt
+@requiere_token
 def api_take_test(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Método no permitido'}, status=405)
@@ -538,3 +545,20 @@ def api_take_test(request):
         return JsonResponse({'message': 'Resultado registrado con éxito', 'aprobado': result.aprobado})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+
+@csrf_exempt
+@requiere_token
+def api_logout(request):
+    """Invalida el token de sesion del usuario cerrando su sesion activa.
+    Elimina el token de la BD para que no pueda reutilizarse.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Metodo no permitido'}, status=405)
+    auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+    if auth_header.startswith('Token '):
+        token_value = auth_header.split(' ', 1)[1].strip()
+        deleted_count, _ = TokenSesion.objects.filter(token=token_value).delete()
+        if deleted_count > 0:
+            return JsonResponse({'message': 'Sesion cerrada con exito. Token invalidado.'})
+    return JsonResponse({'message': 'Sesion cerrada.'})

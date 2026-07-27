@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/min-order/', views.api_min_order),
     path('api/tests/', views.api_tests),
     path('api/tests/take/', views.api_take_test),
+    path('api/logout/', views.api_logout),
 ]
 
 if settings.DEBUG:
