@@ -10,6 +10,7 @@ import {
   IconShoppingCart,
   IconPlus
 } from "@/components/Icons";
+import styles from "./FreelancePortal.module.css";
 
 interface FreelancePortalProps {
   products: Product[];
@@ -17,7 +18,6 @@ interface FreelancePortalProps {
   freelancerName?: string;
 }
 
-// Banco de preguntas por categoria tematica
 const testQuestions = [
   {
     id: 1,
@@ -96,24 +96,8 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
   });
 
   const [freelanceOrders, setFreelanceOrders] = useState([
-    {
-      id: "ORD-9921",
-      client: "Minimarket La Esquina",
-      product: "Aceite Vegetal Superior - Paca x 12",
-      total: 76.00,
-      commission: 7.60,
-      status: "Pendiente Confirmación Entrega",
-      isDelivered: false,
-    },
-    {
-      id: "ORD-9844",
-      client: "Bodega Santa Rosa",
-      product: "Paca de Jugos Naturales x 24",
-      total: 104.00,
-      commission: 10.40,
-      status: "Entregado y Liberado",
-      isDelivered: true,
-    },
+    { id: "ORD-9921", client: "Minimarket La Esquina", product: "Aceite Vegetal Superior - Paca x 12", total: 76.00, commission: 7.60, status: "Pendiente Confirmación Entrega", isDelivered: false },
+    { id: "ORD-9844", client: "Bodega Santa Rosa", product: "Paca de Jugos Naturales x 24", total: 104.00, commission: 10.40, status: "Entregado y Liberado", isDelivered: true },
   ]);
 
   const [tests, setTests] = useState([
@@ -190,226 +174,114 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
   const handleSimulateDelivery = (orderId: string) => {
     setFreelanceOrders((prev) =>
       prev.map((o) =>
-        o.id === orderId
-          ? { ...o, status: "Entregado y Liberado", isDelivered: true }
-          : o
+        o.id === orderId ? { ...o, status: "Entregado y Liberado", isDelivered: true } : o
       )
     );
   };
 
-  const totalCommissionsEarned = freelanceOrders
-    .filter((o) => o.isDelivered)
-    .reduce((acc, curr) => acc + curr.commission, 0);
-
-  const pendingCommissions = freelanceOrders
-    .filter((o) => !o.isDelivered)
-    .reduce((acc, curr) => acc + curr.commission, 0);
+  const totalCommissionsEarned = freelanceOrders.filter((o) => o.isDelivered).reduce((acc, curr) => acc + curr.commission, 0);
+  const pendingCommissions = freelanceOrders.filter((o) => !o.isDelivered).reduce((acc, curr) => acc + curr.commission, 0);
 
   return (
-    <div style={{ padding: "2rem 0 4rem" }}>
+    <div className={styles.wrapper}>
       {/* Top Header */}
-      <div
-        className="card-clean"
-        style={{
-          padding: "2rem",
-          marginBottom: "2rem",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1.5rem"
-        }}
-      >
+      <div className={`card-clean ${styles.topBanner}`}>
         <div>
           <span className="badge-clean badge-clean-neutral" style={{ marginBottom: "0.5rem", gap: "6px" }}>
             <IconBriefcase size={14} /> Portal del Vendedor Freelance
           </span>
-          <h2 style={{ fontSize: "1.8rem", fontWeight: 800 }}>Catálogo Mayorista y Gestión de Ventas</h2>
-          <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+          <h2 className={styles.bannerTitle}>Catálogo Mayorista y Gestión de Ventas</h2>
+          <p className={styles.bannerSubtitle}>
             Explora productos, registra ventas a nombre de tenderos y gestiona tus comisiones.
           </p>
         </div>
 
-        {/* Financial Commission Counters */}
-        <div style={{ display: "flex", gap: "1rem" }}>
-          <div style={{ background: "var(--bg-tertiary)", padding: "0.75rem 1.25rem", borderRadius: "var(--radius-md)", textAlign: "center" }}>
-            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>Comisiones Retenidas</div>
-            <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--accent-amber)" }}>
-              ${pendingCommissions.toFixed(2)}
-            </div>
-            <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Hasta confirmación entrega</span>
+        <div className={styles.kpiRow}>
+          <div className={styles.kpiBox}>
+            <div className={styles.kpiLabel}>Comisiones Retenidas</div>
+            <div className={styles.kpiValueAmber}>${pendingCommissions.toFixed(2)}</div>
+            <span className={styles.kpiSubAmber}>Hasta confirmación entrega</span>
           </div>
-
-          <div style={{ background: "var(--bg-tertiary)", padding: "0.75rem 1.25rem", borderRadius: "var(--radius-md)", textAlign: "center" }}>
-            <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>Comisiones Liberadas</div>
-            <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--accent-teal)" }}>
-              ${totalCommissionsEarned.toFixed(2)}
-            </div>
-            <span style={{ fontSize: "0.7rem", color: "var(--accent-teal)" }}>Listas para retiro</span>
+          <div className={styles.kpiBox}>
+            <div className={styles.kpiLabel}>Comisiones Liberadas</div>
+            <div className={styles.kpiValueTeal}>${totalCommissionsEarned.toFixed(2)}</div>
+            <span className={styles.kpiSubTeal}>Listas para retiro</span>
           </div>
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs for Freelancer */}
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "2rem", borderBottom: "1px solid var(--border-color)", paddingBottom: "0.75rem", flexWrap: "wrap" }}>
-        <button
-          onClick={() => setActiveTab("catalogo")}
-          style={{
-            padding: "0.6rem 1.25rem",
-            borderRadius: "var(--radius-md)",
-            border: "none",
-            fontWeight: activeTab === "catalogo" ? 700 : 500,
-            fontSize: "0.9rem",
-            cursor: "pointer",
-            background: activeTab === "catalogo" ? "var(--primary)" : "var(--bg-tertiary)",
-            color: activeTab === "catalogo" ? "#ffffff" : "var(--text-primary)",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px"
-          }}
-        >
-          <IconPackage size={16} /> Catálogo Mayorista Completo
-        </button>
-
-        <button
-          onClick={() => setActiveTab("pedido")}
-          style={{
-            padding: "0.6rem 1.25rem",
-            borderRadius: "var(--radius-md)",
-            border: "none",
-            fontWeight: activeTab === "pedido" ? 700 : 500,
-            fontSize: "0.9rem",
-            cursor: "pointer",
-            background: activeTab === "pedido" ? "var(--primary)" : "var(--bg-tertiary)",
-            color: activeTab === "pedido" ? "#ffffff" : "var(--text-primary)",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px"
-          }}
-        >
-          <IconShoppingCart size={16} /> Registrar Pedido a Cliente
-        </button>
-
-        <button
-          onClick={() => setActiveTab("comisiones")}
-          style={{
-            padding: "0.6rem 1.25rem",
-            borderRadius: "var(--radius-md)",
-            border: "none",
-            fontWeight: activeTab === "comisiones" ? 700 : 500,
-            fontSize: "0.9rem",
-            cursor: "pointer",
-            background: activeTab === "comisiones" ? "var(--primary)" : "var(--bg-tertiary)",
-            color: activeTab === "comisiones" ? "#ffffff" : "var(--text-primary)",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px"
-          }}
-        >
-          Mis Comisiones
-        </button>
-
-        <button
-          onClick={() => setActiveTab("tests")}
-          style={{
-            padding: "0.6rem 1.25rem",
-            borderRadius: "var(--radius-md)",
-            border: "none",
-            fontWeight: activeTab === "tests" ? 700 : 500,
-            fontSize: "0.9rem",
-            cursor: "pointer",
-            background: activeTab === "tests" ? "var(--primary)" : "var(--bg-tertiary)",
-            color: activeTab === "tests" ? "#ffffff" : "var(--text-primary)",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px"
-          }}
-        >
-          Certificaciones
-        </button>
+      {/* Sub-Navigation Tabs */}
+      <div className={styles.tabNav}>
+        {(["catalogo", "pedido", "comisiones", "tests"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={activeTab === tab ? styles.tabBtnActive : styles.tabBtn}
+          >
+            {tab === "catalogo" && <><IconPackage size={16} /> Catálogo Mayorista Completo</>}
+            {tab === "pedido" && <><IconShoppingCart size={16} /> Registrar Pedido a Cliente</>}
+            {tab === "comisiones" && "Mis Comisiones"}
+            {tab === "tests" && "Certificaciones"}
+          </button>
+        ))}
       </div>
 
-      {/* Tab 1: FULL B2B CATALOG FOR FREELANCERS (RF2.1) */}
+      {/* Tab 1: Full Catalog */}
       {activeTab === "catalogo" && (
         <div>
-          {/* Category Filter & Search Bar */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
-            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div className={styles.filterBar}>
+            <div className={styles.pillsRow}>
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    borderRadius: "var(--radius-full)",
-                    border: "1px solid var(--border-color)",
-                    fontWeight: selectedCategory === cat ? 700 : 500,
-                    fontSize: "0.85rem",
-                    cursor: "pointer",
-                    backgroundColor: selectedCategory === cat ? "var(--secondary)" : "var(--bg-secondary)",
-                    color: selectedCategory === cat ? "#ffffff" : "var(--text-primary)"
-                  }}
+                  className={selectedCategory === cat ? styles.pillActive : styles.pill}
                 >
                   {cat}
                 </button>
               ))}
             </div>
-
-            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-              <IconSearch size={16} color="var(--text-muted)" style={{ position: "absolute", left: "12px" }} />
+            <div className={styles.searchWrapper}>
+              <span className={styles.searchIcon}>
+                <IconSearch size={16} color="var(--text-muted)" />
+              </span>
               <input
                 type="text"
                 placeholder="Buscar productos mayoristas..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  padding: "0.6rem 1rem 0.6rem 2.2rem",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--border-color)",
-                  background: "var(--bg-secondary)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.9rem",
-                  outline: "none",
-                  minWidth: "260px"
-                }}
+                className={styles.searchInput}
               />
             </div>
           </div>
 
-          {/* Catalog Grid */}
           <div className="grid-cards">
             {filteredProducts.map((product) => {
-              const estimatedCommission = product.pricePerUnit * 0.1; // 10% commission
+              const estimatedCommission = product.pricePerUnit * 0.1;
               return (
-                <div key={product.id} className="card-clean" style={{ padding: "1.25rem", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div key={product.id} className={`card-clean ${styles.productCard}`}>
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                      <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)" }}>{product.companyName}</span>
-                      <span className="badge-clean badge-clean-success">
-                        Stock: {product.stock}
-                      </span>
+                    <div className={styles.productTopRow}>
+                      <span className={styles.productCompany}>{product.companyName}</span>
+                      <span className="badge-clean badge-clean-success">Stock: {product.stock}</span>
                     </div>
-
-                    <div style={{ width: "100%", height: "150px", borderRadius: "var(--radius-md)", overflow: "hidden", background: "var(--bg-tertiary)", marginBottom: "1rem" }}>
-                      <img src={product.image} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <div className={styles.productImageBox}>
+                      <img src={product.image} alt={product.name} className={styles.productImage} />
                     </div>
-
-                    <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.2rem" }}>{product.name}</h3>
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginBottom: "0.75rem" }}>📦 {product.unitPackName}</p>
+                    <h3 className={styles.productName}>{product.name}</h3>
+                    <p className={styles.productPack}>📦 {product.unitPackName}</p>
                   </div>
-
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "1rem", background: "var(--bg-tertiary)", padding: "8px 12px", borderRadius: "var(--radius-md)" }}>
-                      <div>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", display: "block" }}>Precio Venta</span>
-                        <span style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--text-primary)" }}>${product.pricePerUnit.toFixed(2)}</span>
+                    <div className={styles.priceCommRow}>
+                      <div className={styles.priceCol}>
+                        <span className={styles.priceMiniLabel}>Precio Venta</span>
+                        <span className={styles.priceValue}>${product.pricePerUnit.toFixed(2)}</span>
                       </div>
-                      <div style={{ textAlign: "right" }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--accent-teal)", fontWeight: 700, display: "block" }}>Tu Comisión (10%)</span>
-                        <span style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--accent-teal)" }}>+${estimatedCommission.toFixed(2)}</span>
+                      <div className={styles.commCol}>
+                        <span className={styles.commLabel}>Tu Comisión (10%)</span>
+                        <span className={styles.commValue}>+${estimatedCommission.toFixed(2)}</span>
                       </div>
                     </div>
-
                     <button
                       onClick={() => handleQuickOrderClick(product.id)}
                       className="btn btn-primary"
@@ -425,37 +297,24 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
         </div>
       )}
 
-      {/* Tab 2: REGISTER ORDER FOR CLIENT (RF3.2) */}
+      {/* Tab 2: Register Order */}
       {activeTab === "pedido" && (
-        <div className="card-clean" style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto" }}>
-          <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-            Registrar Pedido a Nombre del Tendero
-          </h3>
-          <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-            Ingresa la venta realizada a nombre de tu cliente. La comisión se calculará automáticamente.
-          </p>
+        <div className={`card-clean ${styles.orderCard}`}>
+          <h3 className={styles.orderTitle}>Registrar Pedido a Nombre del Tendero</h3>
+          <p className={styles.orderSubtitle}>Ingresa la venta realizada a nombre de tu cliente. La comisión se calculará automáticamente.</p>
 
-          <form onSubmit={handleOrderSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <form onSubmit={handleOrderSubmit} className={styles.orderForm}>
             <div>
-              <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>Seleccionar Cliente / Tendero</label>
-              <select
-                value={selectedClient}
-                onChange={(e) => setSelectedClient(e.target.value)}
-                style={{ width: "100%", padding: "0.7rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-              >
+              <label className={styles.fieldLabel}>Seleccionar Cliente / Tendero</label>
+              <select value={selectedClient} onChange={(e) => setSelectedClient(e.target.value)} className={styles.fieldSelect}>
                 <option value="Abarrotes Don Pepe (Quito)">Abarrotes Don Pepe (Quito)</option>
                 <option value="Minimarket La Esquina (Guayaquil)">Minimarket La Esquina (Guayaquil)</option>
                 <option value="Bodega Santa Rosa (Cuenca)">Bodega Santa Rosa (Cuenca)</option>
               </select>
             </div>
-
             <div>
-              <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>Producto Mayorista</label>
-              <select
-                value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
-                style={{ width: "100%", padding: "0.7rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-              >
+              <label className={styles.fieldLabel}>Producto Mayorista</label>
+              <select value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)} className={styles.fieldSelect}>
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} - ${p.pricePerUnit.toFixed(2)} USD (Comisión: ${(p.pricePerUnit * 0.1).toFixed(2)})
@@ -463,19 +322,10 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                 ))}
               </select>
             </div>
-
             <div>
-              <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>Cantidad de Pacas / Cajas</label>
-              <input
-                type="number"
-                min="1"
-                max="50"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                style={{ width: "100%", padding: "0.7rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}
-              />
+              <label className={styles.fieldLabel}>Cantidad de Pacas / Cajas</label>
+              <input type="number" min="1" max="50" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} className={styles.fieldInput} />
             </div>
-
             <button type="submit" className="btn btn-primary" style={{ marginTop: "0.5rem", padding: "0.8rem" }}>
               Confirmar Pedido a Nombre del Cliente
             </button>
@@ -483,43 +333,40 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
         </div>
       )}
 
-      {/* Tab 3: COMMISSIONS TABLE (RF4.3) */}
+      {/* Tab 3: Commissions */}
       {activeTab === "comisiones" && (
-        <div className="card-clean" style={{ padding: "1.5rem" }}>
-          <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-            Historial de Pedidos y Retención de Comisiones
-          </h3>
+        <div className={`card-clean ${styles.commissionsCard}`}>
+          <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "0.5rem" }}>Historial de Pedidos y Retención de Comisiones</h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
             La comisión permanece retenida hasta que el cliente o el despachador confirme la entrega física.
           </p>
-
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-muted)", fontSize: "0.8rem" }}>
-                  <th style={{ padding: "0.75rem" }}>Nº Pedido</th>
-                  <th style={{ padding: "0.75rem" }}>Cliente / Tendero</th>
-                  <th style={{ padding: "0.75rem" }}>Producto</th>
-                  <th style={{ padding: "0.75rem" }}>Monto Pedido</th>
-                  <th style={{ padding: "0.75rem" }}>Comisión (10%)</th>
-                  <th style={{ padding: "0.75rem" }}>Estado Pago</th>
-                  <th style={{ padding: "0.75rem" }}>Acción Simulación</th>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead className={styles.tableHead}>
+                <tr>
+                  <th>Nº Pedido</th>
+                  <th>Cliente / Tendero</th>
+                  <th>Producto</th>
+                  <th>Monto Pedido</th>
+                  <th>Comisión (10%)</th>
+                  <th>Estado Pago</th>
+                  <th>Acción Simulación</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className={styles.tableBody}>
                 {freelanceOrders.map((o) => (
-                  <tr key={o.id} style={{ borderBottom: "1px solid var(--border-color)", fontSize: "0.85rem" }}>
-                    <td style={{ padding: "0.75rem", fontWeight: 700 }}>{o.id}</td>
-                    <td style={{ padding: "0.75rem" }}>{o.client}</td>
-                    <td style={{ padding: "0.75rem" }}>{o.product}</td>
-                    <td style={{ padding: "0.75rem", fontWeight: 700 }}>${o.total.toFixed(2)}</td>
-                    <td style={{ padding: "0.75rem", fontWeight: 700, color: "var(--primary)" }}>${o.commission.toFixed(2)}</td>
-                    <td style={{ padding: "0.75rem" }}>
+                  <tr key={o.id}>
+                    <td className={styles.tdBold}>{o.id}</td>
+                    <td>{o.client}</td>
+                    <td>{o.product}</td>
+                    <td className={styles.tdBold}>${o.total.toFixed(2)}</td>
+                    <td className={styles.tdCommission}>${o.commission.toFixed(2)}</td>
+                    <td>
                       <span className={`badge-clean ${o.isDelivered ? "badge-clean-success" : "badge-clean-neutral"}`}>
                         {o.status}
                       </span>
                     </td>
-                    <td style={{ padding: "0.75rem" }}>
+                    <td>
                       {!o.isDelivered && (
                         <button
                           onClick={() => handleSimulateDelivery(o.id)}
@@ -538,31 +385,28 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
         </div>
       )}
 
-      {/* Tab 4: CERTIFICATIONS (RF1.3) */}
+      {/* Tab 4: Certifications */}
       {activeTab === "tests" && (
-        <div className="card-clean" style={{ padding: "1.5rem", maxWidth: "700px", margin: "0 auto" }}>
-          <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>
-            Certificaciones y Perfiles Calificados
-          </h3>
+        <div className={`card-clean ${styles.testsCard}`}>
+          <h3 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>Certificaciones y Perfiles Calificados</h3>
           <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
             Rinde exámenes exigidos por empresas farmacéuticas o especializadas para vender sus líneas de productos.
           </p>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div className={styles.testsList}>
             {tests.map((t) => (
-              <div key={t.id} style={{ background: "var(--bg-tertiary)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: "0.95rem" }}>{t.title}</div>
-                  <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{t.company}</div>
+              <div key={t.id} className={styles.testItem}>
+                <div className={styles.testItemInfo}>
+                  <div className={styles.testItemTitle}>{t.title}</div>
+                  <div className={styles.testItemCompany}>{t.company}</div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div className={styles.testItemActions}>
                   <span className={`badge-clean ${
-                    t.status === "Aprobado" ? "badge-clean-success" : 
-                    t.status === "Reintento Solicitado" ? "badge-clean-primary" : 
+                    t.status === "Aprobado" ? "badge-clean-success" :
+                    t.status === "Reintento Solicitado" ? "badge-clean-primary" :
                     "badge-clean-neutral"
                   }`}>
-                    {t.status === "Aprobado" ? <><IconCheck size={14} /> Aprobado</> : 
-                     t.status === "Reintento Solicitado" ? "Reintento Solicitado" : 
+                    {t.status === "Aprobado" ? <><IconCheck size={14} /> Aprobado</> :
+                     t.status === "Reintento Solicitado" ? "Reintento Solicitado" :
                      "Pendiente"}
                   </span>
                   {t.status === "Pendiente" && (
@@ -592,100 +436,79 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
 
       {/* Success Modal */}
       {successMessage && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
-          <div className="card-clean" style={{ width: "100%", maxWidth: "450px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
-            <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(13, 148, 136, 0.1)", color: "var(--accent-teal)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
-              <IconCheck size={36} />
-            </div>
-            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "0.75rem" }}>Pedido Registrado</h3>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem", lineHeight: 1.5 }}>
-              {successMessage}
-            </p>
-            <button onClick={() => setSuccessMessage(null)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
-              Aceptar
-            </button>
+        <div className={styles.modalOverlay}>
+          <div className={`card-clean ${styles.successModal}`}>
+            <div className={styles.successIcon}><IconCheck size={36} /></div>
+            <h3 className={styles.successTitle}>Pedido Registrado</h3>
+            <p className={styles.successMsg}>{successMessage}</p>
+            <button onClick={() => setSuccessMessage(null)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>Aceptar</button>
           </div>
         </div>
       )}
-      {/* Certification Test Modal — Pregunta por Pregunta */}
+
+      {/* Certification Test Modal — Question by Question */}
       {takingTestId !== null && !testResult && (() => {
         const currentQ = testQuestions[currentQuestionIndex];
         const answered = testAnswers[currentQ.id];
         const progressPct = ((currentQuestionIndex) / testQuestions.length) * 100;
         return (
-          <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
-            <div className="card-clean" style={{ width: "100%", maxWidth: "560px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
-
-              {/* Header */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
+          <div className={styles.testModalOverlay}>
+            <div className={`card-clean ${styles.testModal}`}>
+              <div className={styles.testModalHeader}>
                 <div>
-                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.25rem" }}>
-                    Evaluacion de Certificacion
-                  </div>
-                  <h3 style={{ fontSize: "1.1rem", fontWeight: 800, lineClamp: 2 }}>
-                    {tests.find(t => t.id === takingTestId)?.title}
-                  </h3>
+                  <div className={styles.testModalMeta}>Evaluacion de Certificacion</div>
+                  <h3 className={styles.testModalTitle}>{tests.find(t => t.id === takingTestId)?.title}</h3>
                 </div>
-                <button onClick={() => { setTakingTestId(null); setTestAnswers({}); setCurrentQuestionIndex(0); }} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-muted)", flexShrink: 0, marginLeft: "1rem" }}>✕</button>
+                <button
+                  onClick={() => { setTakingTestId(null); setTestAnswers({}); setCurrentQuestionIndex(0); }}
+                  className={styles.testModalCloseBtn}
+                >
+                  ✕
+                </button>
               </div>
 
               {/* Progress bar */}
-              <div style={{ marginBottom: "1.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-muted)", marginBottom: "6px" }}>
+              <div className={styles.progressSection}>
+                <div className={styles.progressHeader}>
                   <span>Pregunta {currentQuestionIndex + 1} de {testQuestions.length}</span>
-                  <span style={{ color: "var(--accent-teal)", fontWeight: 700 }}>{Math.round(progressPct)}% completado</span>
+                  <span className={styles.progressPercent}>{Math.round(progressPct)}% completado</span>
                 </div>
-                <div style={{ height: "6px", background: "var(--bg-tertiary)", borderRadius: "999px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: `${progressPct}%`, background: "linear-gradient(90deg, var(--primary) 0%, var(--accent-amber) 100%)", borderRadius: "999px", transition: "width 0.3s ease" }} />
+                <div className={styles.progressTrack}>
+                  {/* Width is dynamic — kept as inline style */}
+                  <div style={{
+                    height: "100%",
+                    width: `${progressPct}%`,
+                    background: "linear-gradient(90deg, var(--primary) 0%, var(--accent-amber) 100%)",
+                    borderRadius: "999px",
+                    transition: "width 0.3s ease"
+                  }} />
                 </div>
               </div>
 
-              {/* Question */}
-              <p style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1.25rem", lineHeight: 1.5, color: "var(--text-primary)" }}>
-                {currentQ.question}
-              </p>
+              <p className={styles.questionText}>{currentQ.question}</p>
 
-              {/* Options */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.75rem" }}>
+              <div className={styles.optionsList}>
                 {currentQ.options.map((opt) => {
                   const isSelected = answered === opt.key;
                   return (
                     <label
                       key={opt.key}
                       onClick={() => setTestAnswers({ ...testAnswers, [currentQ.id]: opt.key })}
-                      style={{
-                        display: "flex", alignItems: "center", gap: "12px",
-                        padding: "0.75rem 1rem",
-                        borderRadius: "var(--radius-md)",
-                        border: isSelected ? "2px solid var(--primary)" : "1px solid var(--border-color)",
-                        background: isSelected ? "rgba(253,77,1,0.06)" : "var(--bg-tertiary)",
-                        cursor: "pointer", fontSize: "0.9rem", transition: "all 0.15s",
-                        fontWeight: isSelected ? 600 : 400
-                      }}
+                      className={isSelected ? styles.optionLabelSelected : styles.optionLabel}
                     >
-                      <span style={{
-                        width: "20px", height: "20px", borderRadius: "50%", flexShrink: 0,
-                        border: isSelected ? "2px solid var(--primary)" : "2px solid var(--border-color)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        transition: "all 0.15s"
-                      }}>
-                        {isSelected && <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: "var(--primary)" }} />}
+                      <span className={isSelected ? styles.optionBulletSelected : styles.optionBullet}>
+                        {isSelected && <span className={styles.optionBulletDot} />}
                       </span>
-                      <span style={{ color: "var(--text-muted)", fontWeight: 800, minWidth: "18px" }}>{opt.key}.</span>
+                      <span className={styles.optionKey}>{opt.key}.</span>
                       {opt.text}
                     </label>
                   );
                 })}
               </div>
 
-              {/* Navigation buttons */}
-              <div style={{ display: "flex", gap: "0.75rem" }}>
+              <div className={styles.navBtns}>
                 {currentQuestionIndex > 0 && (
-                  <button
-                    onClick={() => setCurrentQuestionIndex(i => i - 1)}
-                    className="btn btn-outline"
-                    style={{ flex: 1, padding: "0.75rem" }}
-                  >
+                  <button onClick={() => setCurrentQuestionIndex(i => i - 1)} className="btn btn-outline" style={{ flex: 1, padding: "0.75rem" }}>
                     Anterior
                   </button>
                 )}
@@ -706,7 +529,6 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                     onClick={() => {
                       if (!answered) { setTestError("Selecciona una respuesta para finalizar."); return; }
                       setTestError(null);
-                      // Calcular resultado
                       const details = testQuestions.map(q => {
                         const chosen = testAnswers[q.id] || "";
                         const correct = chosen === q.correctKey;
@@ -720,7 +542,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                         };
                       });
                       const score = details.filter(d => d.correct).length;
-                      const passed = score === testQuestions.length; // aprobado con 100%
+                      const passed = score === testQuestions.length;
                       if (passed) {
                         fetch("http://localhost:8000/api/tests/take/", {
                           method: "POST",
@@ -728,9 +550,6 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                           body: JSON.stringify({ testId: takingTestId, freelancer: freelancerName, aprobado: true })
                         }).catch(err => console.error("Error saving test result:", err));
                         setTests(prev => prev.map(t => t.id === takingTestId ? { ...t, status: "Aprobado" } : t));
-                      } else {
-                        // En caso de reprobar, se mantiene pendiente pero se le obligará a solicitar reintento
-                        // No cambiamos el status aquí aún, se cambiará cuando presione "Solicitar Nuevo Intento"
                       }
                       setTestResult({ passed, score, total: testQuestions.length, details });
                     }}
@@ -741,9 +560,7 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                   </button>
                 )}
               </div>
-              {testError && (
-                <p style={{ fontSize: "0.82rem", color: "var(--danger)", marginTop: "0.75rem", fontWeight: 600, textAlign: "center" }}>{testError}</p>
-              )}
+              {testError && <p className={styles.testError}>{testError}</p>}
             </div>
           </div>
         );
@@ -751,58 +568,36 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
 
       {/* Result Screen */}
       {testResult && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem", overflowY: "auto" }}>
-          <div className="card-clean" style={{ width: "100%", maxWidth: "560px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", margin: "auto" }}>
-
-            {/* Result badge */}
-            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-              <div style={{
-                width: "80px", height: "80px", borderRadius: "50%", margin: "0 auto 1rem",
-                background: testResult.passed ? "rgba(13,148,136,0.12)" : "rgba(239,68,68,0.1)",
-                border: `2px solid ${testResult.passed ? "rgba(13,148,136,0.4)" : "rgba(239,68,68,0.3)"}`,
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem"
-              }}>
+        <div className={styles.resultOverlay}>
+          <div className={`card-clean ${styles.resultModal}`}>
+            <div className={styles.resultCenter}>
+              <div className={`${styles.resultBadge} ${testResult.passed ? styles.resultBadgePassed : styles.resultBadgeFailed}`}>
                 {testResult.passed ? "✓" : "✗"}
               </div>
-              <h3 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.25rem", color: testResult.passed ? "var(--accent-teal)" : "var(--danger)" }}>
+              <h3 className={`${styles.resultTitle} ${testResult.passed ? styles.resultTitlePassed : styles.resultTitleFailed}`}>
                 {testResult.passed ? "Examen Aprobado" : "Examen No Aprobado"}
               </h3>
-              <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+              <p className={styles.resultSubtitle}>
                 {testResult.passed
                   ? "Certificacion agregada a tu perfil exitosamente."
                   : `Obtuviste ${testResult.score} de ${testResult.total} respuestas correctas. Necesitas el 100% para aprobar.`}
               </p>
-
-              {/* Score ring */}
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginTop: "0.75rem", background: "var(--bg-tertiary)", border: "1px solid var(--border-color)", borderRadius: "999px", padding: "0.4rem 1rem", fontSize: "0.9rem", fontWeight: 800 }}>
-                <span style={{ color: testResult.passed ? "var(--accent-teal)" : "var(--danger)" }}>
+              <div className={styles.scorePill}>
+                <span className={testResult.passed ? styles.scorePassed : styles.scoreFailed}>
                   {testResult.score}/{testResult.total}
                 </span>
-                <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>respuestas correctas</span>
+                <span className={styles.scoreLabel}>respuestas correctas</span>
               </div>
             </div>
 
-            {/* Detail breakdown */}
-            <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "1.25rem", marginBottom: "1.5rem" }}>
-              <p style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.75rem" }}>
-                Detalle de Respuestas
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            <div className={styles.detailSection}>
+              <p className={styles.detailHeader}>Detalle de Respuestas</p>
+              <div className={styles.detailList}>
                 {testResult.details.map((d, i) => (
-                  <div key={i} style={{
-                    background: d.correct ? "rgba(13,148,136,0.05)" : "rgba(239,68,68,0.05)",
-                    border: `1px solid ${d.correct ? "rgba(13,148,136,0.2)" : "rgba(239,68,68,0.2)"}`,
-                    borderRadius: "var(--radius-md)", padding: "0.75rem 1rem"
-                  }}>
-                    <div style={{ fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem", color: "var(--text-primary)" }}>
-                      {i + 1}. {d.question}
-                    </div>
-                    {!d.correct && (
-                      <div style={{ fontSize: "0.78rem", color: "var(--danger)", marginBottom: "0.2rem" }}>
-                        Tu respuesta: {d.yourAnswer}
-                      </div>
-                    )}
-                    <div style={{ fontSize: "0.78rem", color: d.correct ? "var(--accent-teal)" : "var(--text-secondary)", fontWeight: d.correct ? 700 : 400 }}>
+                  <div key={i} className={d.correct ? styles.detailItemCorrect : styles.detailItemWrong}>
+                    <div className={styles.detailQuestion}>{i + 1}. {d.question}</div>
+                    {!d.correct && <div className={styles.detailYourAnswer}>Tu respuesta: {d.yourAnswer}</div>}
+                    <div className={d.correct ? styles.detailCorrect : styles.detailCorrectNeutral}>
                       {d.correct ? "Correcta: " : "Respuesta correcta: "}{d.correctAnswer}
                     </div>
                   </div>
@@ -810,15 +605,15 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: "0.75rem" }}>
+            <div className={styles.resultBtns}>
               {!testResult.passed && (
                 <button
-                  onClick={() => { 
+                  onClick={() => {
                     setTests(prev => prev.map(t => t.id === takingTestId ? { ...t, status: "Reintento Solicitado" } : t));
-                    setTestResult(null); 
-                    setTestAnswers({}); 
-                    setCurrentQuestionIndex(0); 
-                    setTestError(null); 
+                    setTestResult(null);
+                    setTestAnswers({});
+                    setCurrentQuestionIndex(0);
+                    setTestError(null);
                     setTakingTestId(null);
                     setSuccessMessage("Se ha enviado tu solicitud para intentar el examen nuevamente. Un distribuidor debe aprobarla.");
                   }}

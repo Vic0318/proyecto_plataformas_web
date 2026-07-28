@@ -1,0 +1,353 @@
+/* LandingPage.module.css */
+
+.pageWrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Public Header ── */
+.publicHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 0;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo {
+  height: 46px;
+  object-fit: contain;
+}
+
+.navLinks {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.navLink {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.themeBtn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.registerBtn {
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+/* ── Hero Section ── */
+.heroSection {
+  padding: 4rem 0 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroBg {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 750px;
+  height: 450px;
+  background: radial-gradient(ellipse at center, var(--glow-orange) 0%, rgba(253, 77, 1, 0.08) 50%, rgba(253, 77, 1, 0) 75%);
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroContainer {
+  max-width: 900px;
+  position: relative;
+  z-index: 1;
+}
+
+.logoCenterWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.heroBadge {
+  margin-bottom: 1rem;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  gap: 6px;
+}
+
+.heroTitle {
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 1.25rem;
+  line-height: 1.15;
+}
+
+.heroTitleAccent {
+  color: var(--primary);
+}
+
+.heroSubtitle {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+.heroCtas {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3.5rem;
+}
+
+.ctaPrimary {
+  padding: 0.9rem 2rem;
+  font-size: 1.05rem;
+}
+
+.ctaOutline {
+  padding: 0.9rem 2rem;
+  font-size: 1.05rem;
+}
+
+/* Browser mockup */
+.mockupCard {
+  padding: 1rem;
+  border-radius: var(--radius-xl);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.browserBar {
+  background: var(--bg-tertiary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.dotRed {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5f56;
+}
+
+.dotYellow {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffbd2e;
+}
+
+.dotGreen {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #27c93f;
+}
+
+.browserUrl {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+}
+
+.mockupGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  text-align: left;
+}
+
+.mockupItem {
+  background: var(--bg-primary);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+}
+
+.mockupItemTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.mockupItemDesc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ── Solutions Section ── */
+.solutionsSection {
+  padding: 4rem 0;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.sectionTitle {
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.sectionSubtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.roleCard {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.roleIconTendero {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: rgba(253, 77, 1, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.roleIconEmpresa {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: rgba(15, 23, 42, 0.1);
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.roleIconFreelance {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: rgba(13, 148, 136, 0.1);
+  color: var(--accent-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.roleCardTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.roleCardDesc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ── Footer ── */
+.footer {
+  margin-top: auto;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 2.5rem 0 1.5rem;
+}
+
+.footerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.footerBrand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.footerLogo {
+  height: 36px;
+  object-fit: contain;
+}
+
+.footerCopyright {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.footerLinks {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.footerLink {
+  color: var(--text-muted);
+  text-decoration: none;
+}

@@ -1,0 +1,209 @@
+/* Header.module.css */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 0;
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brandArea {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logoBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo {
+  height: 44px;
+  object-fit: contain;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Cart progress section (tendero only) */
+.cartSection {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cartProgress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 110px;
+}
+
+.cartProgressLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.cartProgressLabel.reached {
+  color: var(--accent-teal);
+}
+
+.cartProgressLabel.notReached {
+  color: var(--accent-amber);
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.progressBarFill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.progressBarFill.reached {
+  background: var(--accent-teal);
+}
+
+.progressBarFill.notReached {
+  background: var(--accent-amber);
+}
+
+.cartBadge {
+  background: #fff;
+  color: var(--primary);
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* Theme toggle button */
+.themeBtn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+/* User avatar dropdown */
+.avatarWrapper {
+  position: relative;
+}
+
+.avatarBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px 4px 6px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.avatarInitial {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Dropdown menu */
+.dropdown {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  width: 220px;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+}
+
+.dropdownHeader {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.25rem;
+}
+
+.dropdownUserName {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.dropdownRole {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.dropdownItem {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdownItemDanger {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--danger);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

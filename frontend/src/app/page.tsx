@@ -10,6 +10,7 @@ import { EmpresaDashboard } from "@/components/EmpresaDashboard";
 import { FreelancePortal } from "@/components/FreelancePortal";
 import { AdminPanel } from "@/components/AdminPanel";
 import { IconShoppingCart, IconShieldCheck, IconPackage } from "@/components/Icons";
+import styles from "./page.module.css";
 
 const initialProducts: Product[] = [
   {
@@ -125,7 +126,6 @@ export default function Home() {
     }
   }, []);
 
-  // Helper: devuelve los headers con el token de autenticacion si existe
   const getAuthHeaders = (): HeadersInit => {
     const token = localStorage.getItem("isben_token");
     const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -133,7 +133,6 @@ export default function Home() {
     return headers;
   };
 
-  // Load user order history from backend when history modal opens
   useEffect(() => {
     if (isHistoryOpen && isSessionActive) {
       const fetchHistory = async () => {
@@ -155,11 +154,10 @@ export default function Home() {
     }
   }, [isHistoryOpen, isSessionActive, username]);
 
-  // Load products and minimum order from API on mount
   useEffect(() => {
     const loadData = async () => {
       const token = localStorage.getItem("isben_token");
-      if (!token) return; // Solo carga si hay sesion activa con token
+      if (!token) return;
       try {
         const authHeaders = getAuthHeaders();
         const prodRes = await fetch("http://localhost:8000/api/productos/", { headers: authHeaders });
@@ -182,7 +180,6 @@ export default function Home() {
     loadData();
   }, [isSessionActive]);
 
-  // Theme synchronization
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
@@ -253,18 +250,12 @@ export default function Home() {
         const createdProd = await response.json();
         setProducts((prev) => [createdProd, ...prev]);
       } else {
-        const created: Product = {
-          ...newProd,
-          id: `prod-${Date.now()}`,
-        };
+        const created: Product = { ...newProd, id: `prod-${Date.now()}` };
         setProducts((prev) => [created, ...prev]);
       }
     } catch (err) {
       console.error("Error al crear producto en backend:", err);
-      const created: Product = {
-        ...newProd,
-        id: `prod-${Date.now()}`,
-      };
+      const created: Product = { ...newProd, id: `prod-${Date.now()}` };
       setProducts((prev) => [created, ...prev]);
     }
   };
@@ -325,7 +316,6 @@ export default function Home() {
     }
   };
 
-  // Calculations
   const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
 
   const cartTotal = Object.entries(cart).reduce((sum, [pId, qty]) => {
@@ -342,10 +332,7 @@ export default function Home() {
       const response = await fetch("http://localhost:8000/api/pedidos/", {
         method: "POST",
         headers: getAuthHeaders(),
-        body: JSON.stringify({
-          cart,
-          clientName: username,
-        }),
+        body: JSON.stringify({ cart, clientName: username }),
       });
       
       if (response.ok) {
@@ -361,19 +348,9 @@ export default function Home() {
           total: cartTotal
         };
         setHistoryOrders(prev => [newTx, ...prev]);
-
-        setCheckoutResult({
-          success: true,
-          isRealDb: true,
-          total: cartTotal,
-          paidAmount: paidAmount,
-          depositPercent: depositPercent
-        });
+        setCheckoutResult({ success: true, isRealDb: true, total: cartTotal, paidAmount, depositPercent });
       } else {
-        setCheckoutResult({
-          success: false,
-          errorMsg: "Ocurrio un error al procesar el pedido en el servidor."
-        });
+        setCheckoutResult({ success: false, errorMsg: "Ocurrio un error al procesar el pedido en el servidor." });
       }
     } catch (err) {
       console.error("Error al realizar pedido:", err);
@@ -384,14 +361,7 @@ export default function Home() {
         total: cartTotal
       };
       setHistoryOrders(prev => [newTx, ...prev]);
-
-      setCheckoutResult({
-        success: true,
-        isRealDb: false,
-        total: cartTotal,
-        paidAmount: paidAmount,
-        depositPercent: depositPercent
-      });
+      setCheckoutResult({ success: true, isRealDb: false, total: cartTotal, paidAmount, depositPercent });
     }
     
     setCart({});
@@ -399,9 +369,8 @@ export default function Home() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className={styles.pageWrapper}>
       {viewState === "landing" ? (
-        /* Public Landing Page */
         <LandingPage
           onOpenLogin={() => setIsAuthModalOpen(true)}
           onOpenRegister={() => setIsRegisterModalOpen(true)}
@@ -415,7 +384,6 @@ export default function Home() {
           }}
         />
       ) : (
-        /* Logged-in User Portal */
         <>
           <Header
             currentRole={currentRole}
@@ -435,7 +403,7 @@ export default function Home() {
             onOpenHistory={() => setIsHistoryOpen(true)}
           />
 
-          <main className="container" style={{ flex: 1 }}>
+          <main className={`container ${styles.mainContent}`}>
             {currentRole === "tendero" && (
               <TenderoView
                 products={products}
@@ -446,7 +414,6 @@ export default function Home() {
                 onCheckout={() => setIsCartOpen(true)}
               />
             )}
-
             {currentRole === "empresa" && (
               <EmpresaDashboard
                 products={products}
@@ -458,7 +425,6 @@ export default function Home() {
                 companyName={username}
               />
             )}
-
             {currentRole === "freelance" && (
               <FreelancePortal
                 products={products}
@@ -466,13 +432,12 @@ export default function Home() {
                 freelancerName={username}
               />
             )}
-
             {currentRole === "admin" && <AdminPanel />}
           </main>
         </>
       )}
 
-      {/* Floating Auth Modal */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
@@ -496,46 +461,33 @@ export default function Home() {
 
       {/* Cart & Checkout Drawer */}
       {viewState === "portal" && isCartOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(4px)", display: "flex", justifyContent: "flex-end", zIndex: 200 }}>
-          <div
-            className="card-clean"
-            style={{
-              width: "100%",
-              maxWidth: "460px",
-              height: "100%",
-              borderRadius: 0,
-              padding: "2rem",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              boxShadow: "var(--shadow-lg)"
-            }}
-          >
+        <div className={styles.cartOverlay}>
+          <div className={`card-clean ${styles.cartDrawer}`}>
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-                <h3 style={{ fontSize: "1.3rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "8px" }}>
+              <div className={styles.cartHeader}>
+                <h3 className={styles.cartTitle}>
                   <IconShoppingCart size={20} /> Tu Pedido Mayorista
                 </h3>
-                <button onClick={() => setIsCartOpen(false)} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-primary)" }}>✕</button>
+                <button onClick={() => setIsCartOpen(false)} className={styles.closeBtn}>✕</button>
               </div>
 
               {cartCount === 0 ? (
-                <div style={{ textAlign: "center", padding: "3rem 0", color: "var(--text-muted)" }}>
-                  <IconPackage size={42} style={{ marginBottom: "0.5rem" }} />
+                <div className={styles.cartEmpty}>
+                  <div className={styles.cartEmptyIcon}><IconPackage size={42} /></div>
                   <p>Tu carrito está vacío.</p>
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <div className={styles.cartItems}>
                   {Object.entries(cart).map(([pId, qty]) => {
                     const p = products.find((prod) => prod.id === pId);
                     if (!p) return null;
                     return (
-                      <div key={pId} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--bg-tertiary)", padding: "0.75rem 1rem", borderRadius: "var(--radius-md)" }}>
+                      <div key={pId} className={styles.cartItem}>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{p.name}</div>
-                          <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{qty} x ${p.pricePerUnit.toFixed(2)} USD</div>
+                          <div className={styles.cartItemName}>{p.name}</div>
+                          <div className={styles.cartItemQty}>{qty} x ${p.pricePerUnit.toFixed(2)} USD</div>
                         </div>
-                        <div style={{ fontWeight: 800, color: "var(--primary)" }}>
+                        <div className={styles.cartItemTotal}>
                           ${(p.pricePerUnit * qty).toFixed(2)}
                         </div>
                       </div>
@@ -546,59 +498,43 @@ export default function Home() {
             </div>
 
             {cartCount > 0 && (
-              <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "1.5rem" }}>
+              <div className={styles.cartFooter}>
                 {!isMinOrderReached ? (
-                  <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", padding: "0.75rem", borderRadius: "var(--radius-md)", marginBottom: "1rem", textAlign: "center", color: "var(--danger)", fontSize: "0.85rem" }}>
+                  <div className={styles.cartMinAlert}>
                     Faltan ${(minOrder - cartTotal).toFixed(2)} USD para el mínimo (${minOrder} USD).
                   </div>
                 ) : (
                   <>
-                    <div style={{ marginBottom: "1rem" }}>
-                      <label style={{ fontSize: "0.8rem", fontWeight: 700, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <div className={styles.depositSection}>
+                      <label className={styles.depositLabel}>
                         <IconShieldCheck size={16} /> Depósito Adelantado (PCI-DSS)
                       </label>
-                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                      <div className={styles.depositBtns}>
                         <button
                           onClick={() => setDepositPercent(50)}
-                          style={{
-                            flex: 1,
-                            padding: "0.5rem",
-                            borderRadius: "var(--radius-md)",
-                            border: "1px solid var(--border-color)",
-                            background: depositPercent === 50 ? "var(--primary)" : "var(--bg-tertiary)",
-                            color: depositPercent === 50 ? "#fff" : "var(--text-primary)",
-                            fontWeight: 700,
-                            fontSize: "0.8rem",
-                            cursor: "pointer"
-                          }}
+                          className={depositPercent === 50 ? styles.depositBtnActive : styles.depositBtn}
                         >
                           50% (${(cartTotal * 0.5).toFixed(2)})
                         </button>
                         <button
                           onClick={() => setDepositPercent(100)}
-                          style={{
-                            flex: 1,
-                            padding: "0.5rem",
-                            borderRadius: "var(--radius-md)",
-                            border: "1px solid var(--border-color)",
-                            background: depositPercent === 100 ? "var(--primary)" : "var(--bg-tertiary)",
-                            color: depositPercent === 100 ? "#fff" : "var(--text-primary)",
-                            fontWeight: 700,
-                            fontSize: "0.8rem",
-                            cursor: "pointer"
-                          }}
+                          className={depositPercent === 100 ? styles.depositBtnActive : styles.depositBtn}
                         >
                           100% (${cartTotal.toFixed(2)})
                         </button>
                       </div>
                     </div>
 
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "1.1rem", fontWeight: 800, marginBottom: "1rem" }}>
+                    <div className={styles.cartTotalRow}>
                       <span>Total Pedido:</span>
-                      <span style={{ color: "var(--primary)" }}>${cartTotal.toFixed(2)} USD</span>
+                      <span className={styles.cartTotalAmt}>${cartTotal.toFixed(2)} USD</span>
                     </div>
 
-                    <button onClick={handleCompletePayment} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem", gap: "8px" }}>
+                    <button
+                      onClick={handleCompletePayment}
+                      className={`btn btn-primary ${styles.fullWidthBtn}`}
+                      style={{ gap: "8px" }}
+                    >
                       <IconShieldCheck size={18} /> Pagar con Tarjeta (PCI-DSS)
                     </button>
                   </>
@@ -611,46 +547,44 @@ export default function Home() {
 
       {/* Settings Modal */}
       {isSettingsOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
-          <div className="card-clean" style={{ width: "100%", maxWidth: "500px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Configuracion de Usuario</h3>
-              <button onClick={() => setIsSettingsOpen(false)} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-primary)" }}>✕</button>
+        <div className={styles.settingsOverlay}>
+          <div className={`card-clean ${styles.settingsModal}`}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Configuracion de Usuario</h3>
+              <button onClick={() => setIsSettingsOpen(false)} className={styles.closeBtn}>✕</button>
             </div>
             
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginBottom: "1.5rem" }}>
+            <div className={styles.settingsFields}>
               <div>
-                <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "0.4rem" }}>Idioma de la Interfaz</label>
-                <select style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}>
+                <label className={styles.fieldLabel}>Idioma de la Interfaz</label>
+                <select className={styles.fieldSelect}>
                   <option>Espanol (America Latina)</option>
                   <option>English (US)</option>
                 </select>
               </div>
-
               <div>
-                <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "0.4rem" }}>Moneda de Transaccion</label>
-                <select style={{ width: "100%", padding: "0.6rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", background: "var(--bg-tertiary)", color: "var(--text-primary)" }}>
+                <label className={styles.fieldLabel}>Moneda de Transaccion</label>
+                <select className={styles.fieldSelect}>
                   <option>USD - Dolares Americanos</option>
                   <option>EUR - Euros</option>
                 </select>
               </div>
-
               <div>
-                <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: "0.5rem" }}>Notificaciones del Sistema</label>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer" }}>
-                    <input type="checkbox" defaultChecked style={{ width: "16px", height: "16px" }} />
+                <label className={styles.fieldLabel}>Notificaciones del Sistema</label>
+                <div className={styles.checkboxGroup}>
+                  <label className={styles.checkboxLabel}>
+                    <input type="checkbox" defaultChecked className={styles.checkboxInput} />
                     Alertas de stock bajo de productos
                   </label>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.85rem", cursor: "pointer" }}>
-                    <input type="checkbox" defaultChecked style={{ width: "16px", height: "16px" }} />
+                  <label className={styles.checkboxLabel}>
+                    <input type="checkbox" defaultChecked className={styles.checkboxInput} />
                     Confirmaciones de entrega de pedidos
                   </label>
                 </div>
               </div>
             </div>
 
-            <button onClick={() => setIsSettingsOpen(false)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+            <button onClick={() => setIsSettingsOpen(false)} className={`btn btn-primary ${styles.fullWidthBtn}`}>
               Guardar Cambios
             </button>
           </div>
@@ -659,48 +593,39 @@ export default function Home() {
 
       {/* History Modal */}
       {isHistoryOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 300, padding: "1rem" }}>
-          <div className="card-clean" style={{ width: "100%", maxWidth: "600px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-              <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Historial de Transacciones</h3>
-              <button onClick={() => setIsHistoryOpen(false)} style={{ background: "transparent", border: "none", fontSize: "1.3rem", cursor: "pointer", color: "var(--text-primary)" }}>✕</button>
+        <div className={styles.historyOverlay}>
+          <div className={`card-clean ${styles.historyModal}`}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>Historial de Transacciones</h3>
+              <button onClick={() => setIsHistoryOpen(false)} className={styles.closeBtn}>✕</button>
             </div>
 
-            <div style={{ maxHeight: "320px", overflowY: "auto", marginBottom: "1.5rem" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.9rem" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-secondary)" }}>
-                    <th style={{ padding: "0.5rem" }}>Pedido</th>
-                    <th style={{ padding: "0.5rem" }}>Fecha</th>
-                    <th style={{ padding: "0.5rem" }}>Estado</th>
-                    <th style={{ padding: "0.5rem", textAlign: "right" }}>Total</th>
+            <div className={styles.historyTableWrapper}>
+              <table className={styles.historyTable}>
+                <thead className={styles.historyThead}>
+                  <tr>
+                    <th>Pedido</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th style={{ textAlign: "right" }}>Total</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className={styles.historyTbody}>
                   {historyOrders.map((o) => (
-                    <tr key={o.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                      <td style={{ padding: "0.75rem 0.5rem", fontWeight: 700 }}>{o.id}</td>
-                      <td style={{ padding: "0.75rem 0.5rem" }}>{o.date}</td>
-                      <td style={{ padding: "0.75rem 0.5rem" }}>
-                        <span style={{ 
-                          background: o.status === "Pagado" ? "rgba(13, 148, 136, 0.15)" : "rgba(16,185,129,0.15)", 
-                          color: "var(--accent-teal)", 
-                          padding: "2px 8px", 
-                          borderRadius: "var(--radius-sm)", 
-                          fontSize: "0.75rem", 
-                          fontWeight: 700 
-                        }}>
-                          {o.status}
-                        </span>
+                    <tr key={o.id}>
+                      <td className={styles.tdOrderId}>{o.id}</td>
+                      <td>{o.date}</td>
+                      <td>
+                        <span className={styles.statusBadge}>{o.status}</span>
                       </td>
-                      <td style={{ padding: "0.75rem 0.5rem", textAlign: "right", fontWeight: 800 }}>${o.total.toFixed(2)}</td>
+                      <td className={styles.tdTotal}>${o.total.toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            <button onClick={() => setIsHistoryOpen(false)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+            <button onClick={() => setIsHistoryOpen(false)} className={`btn btn-primary ${styles.fullWidthBtn}`}>
               Cerrar
             </button>
           </div>
@@ -709,56 +634,42 @@ export default function Home() {
 
       {/* Checkout Success / Result Modal */}
       {checkoutResult && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 350, padding: "1rem" }}>
-          <div className="card-clean" style={{ width: "100%", maxWidth: "480px", padding: "2rem", borderRadius: "var(--radius-xl)", boxShadow: "var(--shadow-lg)", textAlign: "center" }}>
-            
+        <div className={styles.checkoutOverlay}>
+          <div className={`card-clean ${styles.checkoutModal}`}>
             {checkoutResult.success ? (
               <>
-                <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(13, 148, 136, 0.1)", color: "var(--accent-teal)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
+                <div className={styles.successIconBadge}>
                   <IconShieldCheck size={36} />
                 </div>
-                
-                <h3 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
-                  Pedido Confirmado con Exito
-                </h3>
-                
-                <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-                  {checkoutResult.isRealDb 
-                    ? "Transaccion registrada en la base de datos real." 
+                <h3 className={styles.checkoutTitle}>Pedido Confirmado con Exito</h3>
+                <p className={styles.checkoutSubtitle}>
+                  {checkoutResult.isRealDb
+                    ? "Transaccion registrada en la base de datos real."
                     : "Transaccion guardada localmente de manera exitosa."}
                 </p>
-                
-                <div style={{ background: "var(--bg-tertiary)", padding: "1.25rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", textAlign: "left", display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Monto Total:</span>
-                    <span style={{ fontWeight: 700, color: "var(--text-primary)" }}>${checkoutResult.total?.toFixed(2)} USD</span>
+                <div className={styles.receiptBox}>
+                  <div className={styles.receiptRow}>
+                    <span className={styles.receiptRowLabel}>Monto Total:</span>
+                    <span className={styles.receiptRowValue}>${checkoutResult.total?.toFixed(2)} USD</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.85rem" }}>
-                    <span style={{ color: "var(--text-secondary)" }}>Cobro Adelantado ({checkoutResult.depositPercent}%):</span>
-                    <span style={{ fontWeight: 700, color: "var(--accent-teal)" }}>${checkoutResult.paidAmount?.toFixed(2)} USD</span>
+                  <div className={styles.receiptRow}>
+                    <span className={styles.receiptRowLabel}>Cobro Adelantado ({checkoutResult.depositPercent}%):</span>
+                    <span className={styles.receiptRowValueTeal}>${checkoutResult.paidAmount?.toFixed(2)} USD</span>
                   </div>
-                  <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "0.5rem", fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.4 }}>
+                  <div className={styles.receiptNote}>
                     Facturacion generada automaticamente. Transaccion protegida de acuerdo a normativas de seguridad de datos.
                   </div>
                 </div>
               </>
             ) : (
               <>
-                <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(239, 68, 68, 0.1)", color: "var(--danger)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem" }}>
-                  ✕
-                </div>
-                
-                <h3 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
-                  Error al Procesar Pedido
-                </h3>
-                
-                <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-                  {checkoutResult.errorMsg}
-                </p>
+                <div className={styles.errorIconBadge}>✕</div>
+                <h3 className={styles.checkoutTitle}>Error al Procesar Pedido</h3>
+                <p className={styles.checkoutErrorMsg}>{checkoutResult.errorMsg}</p>
               </>
             )}
-            
-            <button onClick={() => setCheckoutResult(null)} className="btn btn-primary" style={{ width: "100%", padding: "0.8rem" }}>
+
+            <button onClick={() => setCheckoutResult(null)} className={`btn btn-primary ${styles.fullWidthBtn}`}>
               Aceptar
             </button>
           </div>

@@ -1,0 +1,438 @@
+/* RegisterModal.module.css */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spinAnim {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes successPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+/* Logo + header */
+.logoArea {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo {
+  height: 48px;
+  object-fit: contain;
+  margin-bottom: 0.6rem;
+}
+
+.modalTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modalSubtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Step indicators */
+.stepDots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.stepDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.stepDotActive {
+  background: var(--primary);
+  transform: scale(1.4);
+}
+
+.stepDotInactive {
+  background: var(--border-color);
+  transform: scale(1);
+}
+
+/* Error banner */
+.errorBanner {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--danger);
+  font-size: 0.83rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Step 1 — Role selection */
+.roleTypeLabel {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.roleList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.roleBtn {
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.18s ease;
+}
+
+.roleBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.roleIconBox {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--border-color);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.roleName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.selectedBadge {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+  color: #fff;
+  padding: 1px 8px;
+  border-radius: 100px;
+  vertical-align: middle;
+}
+
+.roleDesc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Step 2 — Form */
+.regForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.fieldLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.fieldLabelLight {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.inputField {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.passwordWrapper {
+  position: relative;
+}
+
+.inputFieldPassword {
+  width: 100%;
+  padding: 0.65rem 4.5rem 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.inputFieldPassword:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.inputFieldError {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--danger);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.showPasswordBtn {
+  position: absolute;
+  right: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0;
+  font-weight: 700;
+}
+
+/* Password strength */
+.strengthBars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0.2rem;
+  margin-top: 0.4rem;
+}
+
+.strengthBar {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.strengthLabel {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Validation messages */
+.validationError {
+  font-size: 0.75rem;
+  color: var(--danger);
+  margin-top: 0.25rem;
+}
+
+.validationOk {
+  font-size: 0.75rem;
+  color: #22c55e;
+  margin-top: 0.25rem;
+}
+
+/* Terms */
+.termsNote {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0.25rem 0 0;
+}
+
+/* Form buttons row */
+.formBtnRow {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.backBtn {
+  flex: 0 0 auto;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.submitBtn {
+  flex: 1;
+  padding: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.18s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spinAnim 0.7s linear infinite;
+  display: inline-block;
+}
+
+/* Step 3 — Success */
+.successArea {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.12);
+  border: 2px solid #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.8rem;
+  color: #22c55e;
+  font-weight: 800;
+  animation: successPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.successTitle {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 0.5rem;
+}
+
+.successSubtitle {
+  font-size: 0.87rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+
+.loadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* Footer switch to login */
+.footerSwitch {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.switchLink {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0;
+  text-decoration: underline;
+}

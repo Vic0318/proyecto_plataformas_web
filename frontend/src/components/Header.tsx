@@ -11,6 +11,7 @@ import {
   IconSettings,
   IconList
 } from "@/components/Icons";
+import styles from "./Header.module.css";
 
 interface HeaderProps {
   currentRole: "tendero" | "empresa" | "freelance" | "admin";
@@ -53,29 +54,17 @@ export const Header: React.FC<HeaderProps> = ({
   }[currentRole];
 
   return (
-    <header
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        background: "var(--bg-glass)",
-        backdropFilter: "blur(12px)",
-        borderBottom: "1px solid var(--border-color)",
-        padding: "0.75rem 0"
-      }}
-    >
-      <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <header className={styles.header}>
+      <div className={`container ${styles.headerContainer}`}>
         
-        {/* Brand & Logo 2 */}
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <button
-            onClick={onGoHome}
-            style={{ background: "transparent", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.75rem" }}
-          >
+        {/* Brand & Logo */}
+        <div className={styles.brandArea}>
+          <button onClick={onGoHome} className={styles.logoBtn}>
             <img
               src="/logos_2.png"
               alt="ISBEN Logo"
-              style={{ height: "44px", objectFit: "contain", filter: theme === "dark" ? "brightness(1.2)" : "none" }}
+              className={styles.logo}
+              style={{ filter: theme === "dark" ? "brightness(1.2)" : "none" }}
               onError={(e) => { (e.target as HTMLImageElement).src = "/logos_1.png"; }}
             />
           </button>
@@ -85,169 +74,80 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right Navigation & User Dropdown */}
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div className={styles.navRight}>
           
           {/* Tendero Cart Button */}
           {currentRole === "tendero" && (
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", minWidth: "110px" }}>
-                <span style={{ fontSize: "0.7rem", fontWeight: 700, color: isMinOrderReached ? "var(--accent-teal)" : "var(--accent-amber)" }}>
+            <div className={styles.cartSection}>
+              <div className={styles.cartProgress}>
+                <span className={`${styles.cartProgressLabel} ${isMinOrderReached ? styles.reached : styles.notReached}`}>
                   {isMinOrderReached ? "Mínimo alcanzado" : `Faltan $${Math.max(0, minOrder - cartTotal)}`}
                 </span>
-                <div style={{ width: "100%", height: "4px", background: "var(--bg-tertiary)", borderRadius: "10px", overflow: "hidden", marginTop: "2px" }}>
-                  <div style={{ width: `${progressPercent}%`, height: "100%", background: isMinOrderReached ? "var(--accent-teal)" : "var(--accent-amber)", transition: "width 0.3s" }} />
+                <div className={styles.progressBarTrack}>
+                  <div
+                    className={`${styles.progressBarFill} ${isMinOrderReached ? styles.reached : styles.notReached}`}
+                    style={{ width: `${progressPercent}%` }}
+                  />
                 </div>
               </div>
 
-              <button onClick={onOpenCart} className="btn btn-primary" style={{ padding: "6px 14px", borderRadius: "var(--radius-md)", gap: "6px" }}>
+              <button onClick={onOpenCart} className={`btn btn-primary ${styles.cartBtn}`} style={{ padding: "6px 14px", borderRadius: "var(--radius-md)", gap: "6px" }}>
                 <IconShoppingCart size={16} /> Pedido
-                <span style={{ background: "#fff", color: "var(--primary)", borderRadius: "10px", padding: "1px 6px", fontSize: "0.75rem", fontWeight: 800 }}>
-                  {cartCount}
-                </span>
+                <span className={styles.cartBadge}>{cartCount}</span>
               </button>
             </div>
           )}
 
           {/* Theme Toggle */}
-          <button
-            onClick={onToggleTheme}
-            style={{
-              background: "transparent",
-              border: "1px solid var(--border-color)",
-              padding: "6px 10px",
-              borderRadius: "var(--radius-md)",
-              cursor: "pointer",
-              fontSize: "0.85rem",
-              color: "var(--text-primary)",
-              display: "flex",
-              alignItems: "center"
-            }}
-          >
+          <button onClick={onToggleTheme} className={styles.themeBtn}>
             {theme === "light" ? <IconMoon size={16} /> : <IconSun size={16} />}
           </button>
 
           {/* SaaS Avatar & User Dropdown Menu */}
-          <div style={{ position: "relative" }}>
+          <div className={styles.avatarWrapper}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                background: "var(--bg-tertiary)",
-                border: "1px solid var(--border-color)",
-                padding: "4px 10px 4px 6px",
-                borderRadius: "var(--radius-full)",
-                cursor: "pointer",
-                transition: "all 0.2s"
-              }}
+              className={styles.avatarBtn}
             >
-              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--primary)", color: "#fff", fontWeight: 800, fontSize: "0.85rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className={styles.avatarInitial}>
                 {username.charAt(0)}
               </div>
-              <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>
-                {username}
-              </span>
+              <span className={styles.avatarName}>{username}</span>
               <IconChevronDown size={14} color="var(--text-muted)" />
             </button>
 
             {/* Floating Dropdown */}
             {isDropdownOpen && (
-              <div
-                className="card-clean"
-                style={{
-                  position: "absolute",
-                  top: "120%",
-                  right: 0,
-                  width: "220px",
-                  padding: "0.5rem",
-                  borderRadius: "var(--radius-md)",
-                  boxShadow: "var(--shadow-lg)",
-                  zIndex: 200
-                }}
-              >
-                <div style={{ padding: "0.5rem 0.75rem", borderBottom: "1px solid var(--border-color)", marginBottom: "0.25rem" }}>
-                  <div style={{ fontWeight: 700, fontSize: "0.85rem" }}>{username}</div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{roleLabel}</div>
+              <div className={`card-clean ${styles.dropdown}`}>
+                <div className={styles.dropdownHeader}>
+                  <div className={styles.dropdownUserName}>{username}</div>
+                  <div className={styles.dropdownRole}>{roleLabel}</div>
                 </div>
 
                 <button
                   onClick={() => { setIsDropdownOpen(false); onGoHome(); }}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "0.5rem 0.75rem",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: "var(--radius-sm)",
-                    cursor: "pointer",
-                    fontSize: "0.85rem",
-                    color: "var(--text-primary)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
+                  className={styles.dropdownItem}
                 >
                   <IconStore size={16} /> Ir a Página de Inicio
                 </button>
 
                 <button
                   onClick={() => { setIsDropdownOpen(false); onOpenSettings?.(); }}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "0.5rem 0.75rem",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: "var(--radius-sm)",
-                    cursor: "pointer",
-                    fontSize: "0.85rem",
-                    color: "var(--text-primary)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
+                  className={styles.dropdownItem}
                 >
                   <IconSettings size={16} /> Configuración
                 </button>
 
                 <button
                   onClick={() => { setIsDropdownOpen(false); onOpenHistory?.(); }}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "0.5rem 0.75rem",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: "var(--radius-sm)",
-                    cursor: "pointer",
-                    fontSize: "0.85rem",
-                    color: "var(--text-primary)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
+                  className={styles.dropdownItem}
                 >
                   <IconList size={16} /> Historial y Reportes
                 </button>
 
                 <button
                   onClick={() => { setIsDropdownOpen(false); onLogout(); }}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "0.5rem 0.75rem",
-                    background: "transparent",
-                    border: "none",
-                    borderRadius: "var(--radius-sm)",
-                    cursor: "pointer",
-                    fontSize: "0.85rem",
-                    color: "var(--danger)",
-                    fontWeight: 600,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                  }}
+                  className={styles.dropdownItemDanger}
                 >
                   <IconLogOut size={16} /> Cerrar Sesión
                 </button>

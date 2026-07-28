@@ -1,0 +1,282 @@
+/* TenderoView.module.css */
+
+.wrapper {
+  padding: 2rem 0 4rem;
+}
+
+/* Catalog header bar */
+.catalogHeader {
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.catalogBadge {
+  margin-bottom: 0.5rem;
+  gap: 6px;
+}
+
+.catalogTitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.catalogSubtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.cartStatus {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cartTotalArea {
+  text-align: right;
+}
+
+.cartTotalLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.cartTotalValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.cartTotalValue.reached {
+  color: var(--accent-teal);
+}
+
+.cartTotalValue.notReached {
+  color: var(--primary);
+}
+
+/* Filter bar */
+.filterBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.pillsRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.15s;
+}
+
+.pillActive {
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: var(--secondary);
+  color: #ffffff;
+  transition: all 0.15s;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+}
+
+.searchInput {
+  padding: 0.6rem 1rem 0.6rem 2.2rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  min-width: 260px;
+}
+
+/* Product card */
+.productCard {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.productTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.productCompany {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.productImageBox {
+  width: 100%;
+  height: 160px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  margin-bottom: 1rem;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.productPack {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Stock indicator */
+.stockBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-bottom: 1.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.stockRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.stockLabelLow {
+  color: var(--primary);
+}
+
+.stockLabelOk {
+  color: var(--accent-teal);
+}
+
+.stockCount {
+  color: var(--text-secondary);
+}
+
+.stockBarTrack {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+/* Stock bar fill colors are dynamic — kept as inline style for width + color */
+
+/* Price */
+.priceRow {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.priceUnit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Quantity selector */
+.qtySelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+
+.qtyBtnBase {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qtyBtnMinus {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.qtyBtnMinusDisabled {
+  background: transparent;
+  color: var(--text-primary);
+  cursor: not-allowed;
+}
+
+.qtyBtnPlus {
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.qtyValue {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.qtyValueActive {
+  color: var(--primary);
+}
+
+.qtyValueZero {
+  color: var(--text-muted);
+}

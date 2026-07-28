@@ -1,0 +1,494 @@
+/* EmpresaDashboard.module.css */
+
+.wrapper {
+  padding: 2rem 0 4rem;
+}
+
+/* Top header */
+.topBanner {
+  padding: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.bannerTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.bannerSubtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.kpiRow {
+  display: flex;
+  gap: 1rem;
+}
+
+.kpiBox {
+  background: var(--bg-tertiary);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.kpiLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.kpiValuePrimary {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.kpiValueDanger {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--danger);
+}
+
+.kpiValueTeal {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent-teal);
+}
+
+/* Two-column grid */
+.twoColGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.cardSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+/* Min order input */
+.minOrderRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.minOrderInputWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.dollarSign {
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.minOrderInput {
+  width: 100%;
+  padding: 0.55rem 0.55rem 0.55rem 2rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.saveSuccess {
+  font-size: 0.8rem;
+  color: var(--accent-teal);
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+/* ERP row */
+.erpRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.erpLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Product catalog card */
+.catalogCard {
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.catalogHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.catalogTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.catalogSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Table */
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tableHead tr {
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.tableHead th {
+  padding: 0.75rem;
+}
+
+.tableHead th:last-child {
+  text-align: right;
+}
+
+.tableBody tr {
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.tableBody td {
+  padding: 0.75rem;
+}
+
+.tdProductName {
+  padding: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.productThumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.tdPrice {
+  padding: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.tdStock {
+  padding: 0.75rem;
+  font-weight: 700;
+}
+
+.tdActions {
+  padding: 0.75rem;
+  text-align: right;
+}
+
+/* Tests section */
+.testsCard {
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.testsTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.testsSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+
+.testForm {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.testInput {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.testsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.testItem {
+  background: var(--bg-tertiary);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.testItemTitle {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.testItemScore {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.testItemFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.testItemBtns {
+  display: flex;
+  gap: 6px;
+}
+
+/* Retry requests */
+.retryCard {
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.noRequests {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.tdRetryActions {
+  padding: 0.75rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Modals */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modalCard {
+  width: 90%;
+  max-width: 480px;
+  padding: 2rem;
+}
+
+.modalTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.fieldLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.fieldSelect {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.twoInputRow {
+  display: flex;
+  gap: 1rem;
+}
+
+.inputFlex {
+  flex: 1;
+}
+
+.modalBtnRow {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Confirm delete modal */
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 250;
+  padding: 1rem;
+}
+
+.confirmCard {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.confirmIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(249, 115, 22, 0.12);
+  border: 2px solid rgba(249, 115, 22, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 1.75rem;
+}
+
+.confirmTitle {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.confirmText {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.confirmProductRow {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.confirmProductThumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.confirmProductName {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.confirmProductMeta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.confirmTestRow {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.confirmTestTitle {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.confirmWarning {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.confirmBtnRow {
+  display: flex;
+  gap: 0.75rem;
+}

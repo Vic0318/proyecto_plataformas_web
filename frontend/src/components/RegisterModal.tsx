@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import styles from "./RegisterModal.module.css";
 
 type RegisterRole = "EMPRESA" | "FREELANCER";
 
@@ -26,14 +27,12 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
   const [step, setStep] = useState<Step>("role");
   const [selectedRole, setSelectedRole] = useState<RegisterRole | null>(null);
 
-  // Form fields
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [nombreEmpresa, setNombreEmpresa] = useState("");
 
-  // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -118,7 +117,6 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
         return;
       }
 
-      // Éxito
       setStep("success");
       setTimeout(() => {
         const mappedRole = data.rol === "freelancer" ? "freelance" : data.rol as "tendero" | "empresa" | "freelance" | "admin";
@@ -150,86 +148,21 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 300,
-        background: "rgba(15, 23, 42, 0.65)",
-        backdropFilter: "blur(8px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "1rem",
-        animation: "fadeIn 0.2s ease",
-      }}
-    >
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spinAnim { to { transform: rotate(360deg); } }
-        @keyframes successPop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
-        .reg-modal { animation: slideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .reg-role-btn { transition: all 0.18s ease; }
-        .reg-role-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-        .reg-input:focus { outline: none; border-color: var(--primary) !important; box-shadow: 0 0 0 3px var(--primary-glow); }
-        .reg-submit-btn { transition: all 0.18s ease; }
-        .reg-submit-btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.08); }
-        .reg-submit-btn:disabled { opacity: 0.65; cursor: not-allowed; }
-        .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spinAnim 0.7s linear infinite; display: inline-block; }
-        .success-icon { animation: successPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .step-dot { width: 8px; height: 8px; border-radius: 50%; transition: all 0.2s ease; }
-      `}</style>
-
-      <div
-        className="card-clean reg-modal"
-        style={{
-          width: "100%",
-          maxWidth: "480px",
-          padding: "2rem",
-          borderRadius: "var(--radius-xl)",
-          boxShadow: "var(--shadow-lg)",
-          position: "relative",
-          maxHeight: "90vh",
-          overflowY: "auto",
-        }}
-      >
+    <div className={styles.overlay}>
+      <div className={`card-clean ${styles.modal}`}>
         {/* Close Button */}
-        <button
-          onClick={handleClose}
-          style={{
-            position: "absolute",
-            top: "1.25rem",
-            right: "1.25rem",
-            background: "var(--bg-tertiary)",
-            border: "1px solid var(--border-color)",
-            borderRadius: "50%",
-            width: "32px",
-            height: "32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1rem",
-            cursor: "pointer",
-            color: "var(--text-muted)",
-            lineHeight: 1,
-          }}
-        >
-          ✕
-        </button>
+        <button onClick={handleClose} className={styles.closeBtn}>✕</button>
 
         {/* Logo + Header */}
-        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+        <div className={styles.logoArea}>
           <img
             src="/logos_2.png"
             alt="ISBEN Logo"
-            style={{ height: "48px", objectFit: "contain", marginBottom: "0.6rem" }}
+            className={styles.logo}
             onError={(e) => { (e.target as HTMLImageElement).src = "/logos_1.png"; }}
           />
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>
-            Crear Cuenta en ISBEN
-          </h2>
-          <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
+          <h2 className={styles.modalTitle}>Crear Cuenta en ISBEN</h2>
+          <p className={styles.modalSubtitle}>
             {step === "role" && "Elige el tipo de cuenta que deseas crear"}
             {step === "form" && `Completa tu perfil de ${selectedRole ? roleConfig[selectedRole].label : ""}`}
             {step === "success" && "¡Bienvenido a la plataforma!"}
@@ -238,37 +171,22 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
 
         {/* Step Indicators */}
         {step !== "success" && (
-          <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginBottom: "1.5rem" }}>
-            <div className="step-dot" style={{ background: "var(--primary)", transform: step === "role" ? "scale(1.4)" : "scale(1)" }} />
-            <div className="step-dot" style={{ background: step === "form" ? "var(--primary)" : "var(--border-color)", transform: step === "form" ? "scale(1.4)" : "scale(1)" }} />
+          <div className={styles.stepDots}>
+            <div className={`${styles.stepDot} ${step === "role" ? styles.stepDotActive : styles.stepDotInactive}`} />
+            <div className={`${styles.stepDot} ${step === "form" ? styles.stepDotActive : styles.stepDotInactive}`} />
           </div>
         )}
 
         {/* Error Banner */}
         {errorMsg && (
-          <div style={{
-            background: "rgba(239, 68, 68, 0.1)",
-            border: "1px solid rgba(239, 68, 68, 0.3)",
-            padding: "0.7rem 1rem",
-            borderRadius: "var(--radius-md)",
-            color: "var(--danger)",
-            fontSize: "0.83rem",
-            marginBottom: "1rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.4rem",
-          }}>
-            {errorMsg}
-          </div>
+          <div className={styles.errorBanner}>{errorMsg}</div>
         )}
 
         {/* ── STEP 1: Role Selection ── */}
         {step === "role" && (
           <div>
-            <p style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)", marginBottom: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Tipo de cuenta
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
+            <p className={styles.roleTypeLabel}>Tipo de cuenta</p>
+            <div className={styles.roleList}>
               {(["EMPRESA", "FREELANCER"] as RegisterRole[]).map((role) => {
                 const cfg = roleConfig[role];
                 const isSelected = selectedRole === role;
@@ -276,58 +194,35 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
                   <button
                     key={role}
                     type="button"
-                    className="reg-role-btn"
+                    className={styles.roleBtn}
                     onClick={() => handleRoleSelect(role)}
                     style={{
-                      padding: "1rem 1.2rem",
-                      borderRadius: "var(--radius-lg)",
                       border: isSelected ? `2px solid ${cfg.color}` : "1px solid var(--border-color)",
                       background: isSelected ? cfg.glow : "var(--bg-tertiary)",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: "1rem",
                     }}
                   >
-                    <span style={{
-                      width: "36px",
-                      height: "36px",
-                      borderRadius: "8px",
-                      background: isSelected ? cfg.color : "var(--border-color)",
-                      color: "#fff",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 800,
-                      fontSize: "0.9rem",
-                      flexShrink: 0,
-                    }}>{cfg.icon}</span>
+                    <span
+                      className={styles.roleIconBox}
+                      style={{ background: isSelected ? cfg.color : "var(--border-color)" }}
+                    >
+                      {cfg.icon}
+                    </span>
                     <div>
-                      <div style={{
-                        fontSize: "0.95rem",
-                        fontWeight: 700,
-                        color: isSelected ? cfg.color : "var(--text-primary)",
-                        marginBottom: "0.25rem",
-                      }}>
+                      <div
+                        className={styles.roleName}
+                        style={{ color: isSelected ? cfg.color : "var(--text-primary)" }}
+                      >
                         {cfg.label}
                         {isSelected && (
-                          <span style={{
-                            marginLeft: "0.5rem",
-                            fontSize: "0.7rem",
-                            background: cfg.color,
-                            color: "#fff",
-                            padding: "1px 8px",
-                            borderRadius: "100px",
-                            verticalAlign: "middle",
-                          }}>
+                          <span
+                            className={styles.selectedBadge}
+                            style={{ background: cfg.color }}
+                          >
                             Seleccionado
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", lineHeight: 1.4 }}>
-                        {cfg.description}
-                      </div>
+                      <div className={styles.roleDesc}>{cfg.description}</div>
                     </div>
                   </button>
                 );
@@ -336,9 +231,8 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
 
             <button
               type="button"
-              className="btn btn-primary reg-submit-btn"
+              className={`btn btn-primary ${styles.submitBtn}`}
               onClick={handleNextStep}
-              style={{ width: "100%", padding: "0.85rem" }}
             >
               Continuar →
             </button>
@@ -347,150 +241,92 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
 
         {/* ── STEP 2: Registration Form ── */}
         {step === "form" && selectedRole && (
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+          <form onSubmit={handleSubmit} className={styles.regForm}>
 
             {/* Nombre Completo */}
             <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>
+              <label className={styles.fieldLabel}>
                 Nombre Completo *
               </label>
               <input
                 type="text"
-                className="reg-input"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 required
                 placeholder={selectedRole === "EMPRESA" ? "Juan Pérez (representante)" : "Tu nombre completo"}
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--border-color)",
-                  background: "var(--bg-tertiary)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.9rem",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.15s",
-                }}
+                className={styles.inputField}
               />
             </div>
 
             {/* Nombre Empresa — solo si es EMPRESA */}
             {selectedRole === "EMPRESA" && (
               <div>
-                <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>
-                  Nombre de la Empresa *
-                </label>
+                <label className={styles.fieldLabel}>Nombre de la Empresa *</label>
                 <input
                   type="text"
-                  className="reg-input"
                   value={nombreEmpresa}
                   onChange={(e) => setNombreEmpresa(e.target.value)}
                   required
                   placeholder="Ej: Distribuidora Los Andes S.A."
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.85rem",
-                    borderRadius: "var(--radius-md)",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-tertiary)",
-                    color: "var(--text-primary)",
-                    fontSize: "0.9rem",
-                    boxSizing: "border-box",
-                    transition: "border-color 0.15s",
-                  }}
+                  className={styles.inputField}
                 />
               </div>
             )}
 
             {/* Email */}
             <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>
-                Correo Electrónico *
-              </label>
+              <label className={styles.fieldLabel}>Correo Electrónico *</label>
               <input
                 type="email"
-                className="reg-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="correo@empresa.com"
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--border-color)",
-                  background: "var(--bg-tertiary)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.9rem",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.15s",
-                }}
+                className={styles.inputField}
               />
             </div>
 
             {/* Password */}
             <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>
-                Contraseña * <span style={{ fontWeight: 400, color: "var(--text-muted)" }}>(mín. 6 caracteres)</span>
+              <label className={styles.fieldLabel}>
+                Contraseña * <span className={styles.fieldLabelLight}>(mín. 6 caracteres)</span>
               </label>
-              <div style={{ position: "relative" }}>
+              <div className={styles.passwordWrapper}>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="reg-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="Crea una contraseña segura"
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 4.5rem 0.65rem 0.85rem",
-                    borderRadius: "var(--radius-md)",
-                    border: "1px solid var(--border-color)",
-                    background: "var(--bg-tertiary)",
-                    color: "var(--text-primary)",
-                    fontSize: "0.9rem",
-                    boxSizing: "border-box",
-                    transition: "border-color 0.15s",
-                  }}
+                  className={styles.inputFieldPassword}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: "absolute",
-                    right: "0.7rem",
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "0.75rem",
-                    color: "var(--text-muted)",
-                    padding: 0,
-                    fontWeight: 700,
-                  }}
+                  className={styles.showPasswordBtn}
                 >
                   {showPassword ? "Ocultar" : "Mostrar"}
                 </button>
               </div>
               {/* Password strength bar */}
               {password.length > 0 && (
-                <div style={{ marginTop: "0.4rem" }}>
-                  <div style={{ display: "flex", gap: "4px", marginBottom: "0.2rem" }}>
+                <div>
+                  <div className={styles.strengthBars}>
                     {[1, 2, 3, 4].map((i) => {
                       const strength = Math.min(4, Math.floor(password.length / 3));
                       const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e"];
                       return (
-                        <div key={i} style={{
-                          flex: 1, height: "3px", borderRadius: "2px",
-                          background: i <= strength ? colors[strength - 1] : "var(--border-color)",
-                          transition: "all 0.2s",
-                        }} />
+                        <div
+                          key={i}
+                          className={styles.strengthBar}
+                          style={{
+                            background: i <= strength ? colors[strength - 1] : "var(--border-color)",
+                          }}
+                        />
                       );
                     })}
                   </div>
-                  <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+                  <span className={styles.strengthLabel}>
                     {password.length < 6 ? "Muy corta" : password.length < 9 ? "Aceptable" : password.length < 12 ? "Buena" : "Excelente"}
                   </span>
                 </div>
@@ -499,73 +335,45 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
 
             {/* Confirm Password */}
             <div>
-              <label style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--text-secondary)", display: "block", marginBottom: "0.3rem" }}>
-                Confirmar Contraseña *
-              </label>
+              <label className={styles.fieldLabel}>Confirmar Contraseña *</label>
               <input
                 type={showPassword ? "text" : "password"}
-                className="reg-input"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 placeholder="Repite tu contraseña"
-                style={{
-                  width: "100%",
-                  padding: "0.65rem 0.85rem",
-                  borderRadius: "var(--radius-md)",
-                  border: `1px solid ${confirmPassword && confirmPassword !== password ? "var(--danger)" : "var(--border-color)"}`,
-                  background: "var(--bg-tertiary)",
-                  color: "var(--text-primary)",
-                  fontSize: "0.9rem",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.15s",
-                }}
+                className={confirmPassword && confirmPassword !== password ? styles.inputFieldError : styles.inputField}
               />
               {confirmPassword && confirmPassword !== password && (
-                <p style={{ fontSize: "0.75rem", color: "var(--danger)", marginTop: "0.25rem" }}>
-                  Las contraseñas no coinciden
-                </p>
+                <p className={styles.validationError}>Las contraseñas no coinciden</p>
               )}
               {confirmPassword && confirmPassword === password && (
-                <p style={{ fontSize: "0.75rem", color: "#22c55e", marginTop: "0.25rem" }}>
-                  Las contraseñas coinciden
-                </p>
+                <p className={styles.validationOk}>Las contraseñas coinciden</p>
               )}
             </div>
 
             {/* Terms note */}
-            <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", textAlign: "center", margin: "0.25rem 0 0" }}>
+            <p className={styles.termsNote}>
               Al registrarte, aceptas los términos y condiciones de la plataforma ISBEN.
             </p>
 
             {/* Buttons */}
-            <div style={{ display: "flex", gap: "0.6rem", marginTop: "0.5rem" }}>
+            <div className={styles.formBtnRow}>
               <button
                 type="button"
                 onClick={() => { setStep("role"); setErrorMsg(""); }}
-                style={{
-                  flex: "0 0 auto",
-                  padding: "0.8rem 1rem",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--border-color)",
-                  background: "var(--bg-tertiary)",
-                  color: "var(--text-secondary)",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  fontSize: "0.85rem",
-                }}
+                className={styles.backBtn}
               >
                 ← Atrás
               </button>
               <button
                 type="submit"
-                className="btn btn-primary reg-submit-btn"
+                className={`btn btn-primary ${styles.submitBtn}`}
                 disabled={isLoading}
-                style={{ flex: 1, padding: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
               >
                 {isLoading ? (
                   <>
-                    <span className="spinner" />
+                    <span className={styles.spinner} />
                     Creando cuenta...
                   </>
                 ) : (
@@ -578,34 +386,12 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
 
         {/* ── STEP 3: Success ── */}
         {step === "success" && (
-          <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
-            <div
-              className="success-icon"
-              style={{
-                width: "64px",
-                height: "64px",
-                borderRadius: "50%",
-                background: "rgba(34, 197, 94, 0.12)",
-                border: "2px solid #22c55e",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 1rem",
-                fontSize: "1.8rem",
-                color: "#22c55e",
-                fontWeight: 800,
-              }}
-            >
-              &#10003;
-            </div>
-            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.5rem" }}>
-              ¡Cuenta creada exitosamente!
-            </h3>
-            <p style={{ fontSize: "0.87rem", color: "var(--text-secondary)", marginBottom: "1.25rem" }}>
-              Iniciando sesión automáticamente en tu portal...
-            </p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", color: "var(--text-muted)", fontSize: "0.82rem" }}>
-              <span className="spinner" />
+          <div className={styles.successArea}>
+            <div className={`${styles.successIcon}`}>&#10003;</div>
+            <h3 className={styles.successTitle}>¡Cuenta creada exitosamente!</h3>
+            <p className={styles.successSubtitle}>Iniciando sesión automáticamente en tu portal...</p>
+            <div className={styles.loadingRow}>
+              <span className={styles.spinner} />
               Cargando tu portal
             </div>
           </div>
@@ -613,21 +399,12 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
 
         {/* Footer — Switch to Login */}
         {step !== "success" && (
-          <div style={{ marginTop: "1.25rem", textAlign: "center", fontSize: "0.82rem", color: "var(--text-muted)" }}>
+          <div className={styles.footerSwitch}>
             ¿Ya tienes cuenta?{" "}
             <button
               type="button"
               onClick={() => { handleClose(); onSwitchToLogin(); }}
-              style={{
-                background: "transparent",
-                border: "none",
-                color: "var(--primary)",
-                cursor: "pointer",
-                fontWeight: 700,
-                fontSize: "0.82rem",
-                padding: 0,
-                textDecoration: "underline",
-              }}
+              className={styles.switchLink}
             >
               Iniciar Sesión
             </button>

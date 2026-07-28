@@ -1,0 +1,195 @@
+/* AdminPanel.module.css */
+
+.wrapper {
+  padding: 2rem 0 4rem;
+}
+
+.topBanner {
+  padding: 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.bannerTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+
+.bannerSubtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.kpiRow {
+  display: flex;
+  gap: 1rem;
+}
+
+.kpiBox {
+  background: var(--bg-tertiary);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.kpiLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.kpiValuePrimary {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.kpiValueTeal {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent-teal);
+}
+
+/* Main grid */
+.mainGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.cardTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.cardSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.itemRow {
+  background: var(--bg-tertiary);
+  padding: 0.9rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemTitle {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.itemDesc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Security boxes */
+.securityBoxTeal {
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.securityLabelTeal {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.securityBoxOrange {
+  background: rgba(253, 77, 1, 0.08);
+  border: 1px solid rgba(253, 77, 1, 0.2);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.securityLabelOrange {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.securityDesc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Permissions table */
+.permissionsCard {
+  padding: 1.5rem;
+}
+
+.permissionsTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.permissionsSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.tableHead tr {
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.tableHead th {
+  padding: 0.75rem;
+}
+
+.tableHead th:first-child {
+  text-align: left;
+}
+
+.tableBody tr {
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.tableBody td {
+  padding: 0.75rem;
+}
+
+.tableBody td:first-child {
+  text-align: left;
+  font-weight: 700;
+}

@@ -1,0 +1,428 @@
+/* page.module.css */
+
+.pageWrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mainContent {
+  flex: 1;
+}
+
+/* ── Cart Drawer ── */
+.cartOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 200;
+}
+
+.cartDrawer {
+  width: 100%;
+  max-width: 460px;
+  height: 100%;
+  border-radius: 0;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-lg);
+}
+
+.cartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.cartTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.cartEmpty {
+  text-align: center;
+  padding: 3rem 0;
+  color: var(--text-muted);
+}
+
+.cartEmptyIcon {
+  margin-bottom: 0.5rem;
+}
+
+.cartItems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cartItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-tertiary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.cartItemName {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.cartItemQty {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.cartItemTotal {
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* Cart footer */
+.cartFooter {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.5rem;
+}
+
+.cartMinAlert {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  text-align: center;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.depositSection {
+  margin-bottom: 1rem;
+}
+
+.depositLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.depositBtns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.depositBtn {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.depositBtnActive {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.cartTotalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.cartTotalAmt {
+  color: var(--primary);
+}
+
+/* ── Settings Modal ── */
+.settingsOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 1rem;
+}
+
+.settingsModal {
+  width: 100%;
+  max-width: 500px;
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modalTitle {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.settingsFields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.fieldLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.fieldSelect {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.checkboxInput {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── History Modal ── */
+.historyOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 1rem;
+}
+
+.historyModal {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.historyTableWrapper {
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.historyThead tr {
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.historyThead th {
+  padding: 0.5rem;
+}
+
+.historyThead th:last-child {
+  text-align: right;
+}
+
+.historyTbody tr {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.historyTbody td {
+  padding: 0.75rem 0.5rem;
+}
+
+.tdOrderId {
+  font-weight: 700;
+}
+
+.tdTotal {
+  text-align: right;
+  font-weight: 800;
+}
+
+.statusBadge {
+  background: rgba(13, 148, 136, 0.15);
+  color: var(--accent-teal);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ── Checkout Result Modal ── */
+.checkoutOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 350;
+  padding: 1rem;
+}
+
+.checkoutModal {
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.successIconBadge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(13, 148, 136, 0.1);
+  color: var(--accent-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.errorIconBadge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 1.5rem;
+}
+
+.checkoutTitle {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.checkoutSubtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.checkoutErrorMsg {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.receiptBox {
+  background: var(--bg-tertiary);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.receiptRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.receiptRowLabel {
+  color: var(--text-secondary);
+}
+
+.receiptRowValue {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.receiptRowValueTeal {
+  font-weight: 700;
+  color: var(--accent-teal);
+}
+
+.receiptNote {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.fullWidthBtn {
+  width: 100%;
+  padding: 0.8rem;
+}
