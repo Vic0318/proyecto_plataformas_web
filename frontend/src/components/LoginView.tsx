@@ -6,9 +6,10 @@ interface LoginViewProps {
   onLogin: (role: "tendero" | "empresa" | "freelance" | "admin", username: string) => void;
   theme: "light" | "dark";
   onToggleTheme: () => void;
+  onOpenRegister?: () => void;
 }
 
-export const LoginView: React.FC<LoginViewProps> = ({ onLogin, theme, onToggleTheme }) => {
+export const LoginView: React.FC<LoginViewProps> = ({ onLogin, theme, onToggleTheme, onOpenRegister }) => {
   const [selectedRole, setSelectedRole] = useState<"tendero" | "empresa" | "freelance" | "admin">("tendero");
   const [email, setEmail] = useState("tendero@isben.com");
   const [password, setPassword] = useState("••••••••");
@@ -229,6 +230,41 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, theme, onToggleTh
         <div style={{ marginTop: "1.5rem", textAlign: "center", fontSize: "0.8rem", color: "var(--text-muted)" }}>
           🔒 Conexión Segura Encriptada | Autenticación RBAC Django
         </div>
+
+        {/* Register CTA */}
+        {onOpenRegister && (
+          <div style={{
+            marginTop: "1.25rem",
+            padding: "1rem 1.25rem",
+            borderRadius: "var(--radius-lg)",
+            border: "1px dashed var(--border-color)",
+            background: "var(--bg-tertiary)",
+            textAlign: "center",
+          }}>
+            <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: "0 0 0.6rem" }}>
+              Quieres vender en ISBEN?
+            </p>
+            <button
+              type="button"
+              onClick={onOpenRegister}
+              className="btn"
+              style={{
+                padding: "0.6rem 1.5rem",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid var(--primary)",
+                background: "var(--primary-glow)",
+                color: "var(--primary)",
+                cursor: "pointer",
+                fontWeight: 700,
+                fontSize: "0.85rem",
+                width: "100%",
+                transition: "all 0.15s ease",
+              }}
+            >
+              Registrar Empresa o Cuenta Freelance
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

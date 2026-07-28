@@ -23,6 +23,7 @@ from marketplace import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/login/', views.api_login),
+    path('api/register/', views.api_register),
     path('api/productos/', views.api_productos),
     path('api/pedidos/', views.api_pedidos),
     path('api/min-order/', views.api_min_order),

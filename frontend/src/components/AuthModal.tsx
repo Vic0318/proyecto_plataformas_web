@@ -6,9 +6,10 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: (role: "tendero" | "empresa" | "freelance" | "admin", username: string, token?: string) => void;
+  onSwitchToRegister?: () => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, onSwitchToRegister }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -164,6 +165,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             Ingresar al Portal
           </button>
         </form>
+
+        {/* Register Link */}
+        {onSwitchToRegister && (
+          <div style={{ marginTop: "1.25rem", textAlign: "center", fontSize: "0.82rem", color: "var(--text-muted)" }}>
+            ¿No tienes cuenta?{" "}
+            <button
+              type="button"
+              onClick={() => { onClose(); onSwitchToRegister(); }}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--primary)",
+                cursor: "pointer",
+                fontWeight: 700,
+                fontSize: "0.82rem",
+                padding: 0,
+                textDecoration: "underline",
+              }}
+            >
+              Crea tu cuenta gratis →
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

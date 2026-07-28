@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { LandingPage } from "@/components/LandingPage";
 import { AuthModal } from "@/components/AuthModal";
+import { RegisterModal } from "@/components/RegisterModal";
 import { TenderoView, Product } from "@/components/TenderoView";
 import { EmpresaDashboard } from "@/components/EmpresaDashboard";
 import { FreelancePortal } from "@/components/FreelancePortal";
@@ -78,6 +79,7 @@ const initialProducts: Product[] = [
 export default function Home() {
   const [viewState, setViewState] = useState<"landing" | "portal">("landing");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
 
   const [currentRole, setCurrentRole] = useState<"tendero" | "empresa" | "freelance" | "admin">("tendero");
   const [username, setUsername] = useState<string>("Abarrotes Don Pepe");
@@ -402,6 +404,7 @@ export default function Home() {
         /* Public Landing Page */
         <LandingPage
           onOpenLogin={() => setIsAuthModalOpen(true)}
+          onOpenRegister={() => setIsRegisterModalOpen(true)}
           onSelectRoleDemo={handleSelectRoleDemo}
           theme={theme}
           onToggleTheme={toggleTheme}
@@ -474,6 +477,21 @@ export default function Home() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+        onSwitchToRegister={() => {
+          setIsAuthModalOpen(false);
+          setIsRegisterModalOpen(true);
+        }}
+      />
+
+      {/* Register Modal */}
+      <RegisterModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+        onRegisterSuccess={handleLoginSuccess}
+        onSwitchToLogin={() => {
+          setIsRegisterModalOpen(false);
+          setIsAuthModalOpen(true);
+        }}
       />
 
       {/* Cart & Checkout Drawer */}

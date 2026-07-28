@@ -13,6 +13,7 @@ import {
 
 interface LandingPageProps {
   onOpenLogin: () => void;
+  onOpenRegister?: () => void;
   onSelectRoleDemo: (role: "tendero" | "empresa" | "freelance" | "admin") => void;
   theme: "light" | "dark";
   onToggleTheme: () => void;
@@ -22,6 +23,7 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenLogin,
+  onOpenRegister,
   onSelectRoleDemo,
   theme,
   onToggleTheme,
@@ -94,13 +96,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 Ir al Portal
               </button>
             ) : (
-              <button
-                onClick={onOpenLogin}
-                className="btn btn-primary"
-                style={{ padding: "8px 20px" }}
-              >
-                Iniciar Sesión
-              </button>
+              <>
+                {onOpenRegister && (
+                  <button
+                    onClick={onOpenRegister}
+                    style={{
+                      padding: "8px 18px",
+                      borderRadius: "var(--radius-md)",
+                      border: "1px solid var(--primary)",
+                      background: "var(--primary-glow)",
+                      color: "var(--primary)",
+                      cursor: "pointer",
+                      fontWeight: 700,
+                      fontSize: "0.88rem",
+                    }}
+                  >
+                    Registrarse
+                  </button>
+                )}
+                <button
+                  onClick={onOpenLogin}
+                  className="btn btn-primary"
+                  style={{ padding: "8px 20px" }}
+                >
+                  Iniciar Sesión
+                </button>
+              </>
             )}
           </div>
 

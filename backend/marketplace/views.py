@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from .models import Usuario, PerfilEmpresa, PerfilFreelance, Producto, Pedido, DetallePedido, TokenSesion
+from .models import Usuario, PerfilEmpresa, PerfilFreelance, Producto, Pedido, DetallePedido, TokenSesion, ExamenCertificacion, ResultadoExamen
 from django.db.models import Q
 import json
 import functools
@@ -50,6 +50,90 @@ def get_product_image(name, category):
     elif category == 'Limpieza':
         return '/cleaning_pack.png'
     return '/groceries_pack.png'
+
+@csrf_exempt
+def api_register(request):
+    """Endpoint público para registrar nuevos usuarios (EMPRESA o FREELANCER).
+    No requiere token de sesión. Retorna un token para login inmediato.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        nombre_completo = data.get('nombre', '').strip()
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
+        rol_raw = data.get('rol', '').strip().upper()
+        nombre_empresa = data.get('nombre_empresa', '').strip()
+        
+        # Validaciones básicas
+        if not nombre_completo or not email or not password or not rol_raw:
+            return JsonResponse({'error': 'Todos los campos son requeridos.'}, status=400)
+        
+        if rol_raw not in ('EMPRESA', 'FREELANCER'):
+            return JsonResponse({'error': 'Rol inválido. Solo se permite EMPRESA o FREELANCER.'}, status=400)
+        
+        if rol_raw == 'EMPRESA' and not nombre_empresa:
+            return JsonResponse({'error': 'El nombre de la empresa es requerido para este tipo de cuenta.'}, status=400)
+        
+        if len(password) < 6:
+            return JsonResponse({'error': 'La contraseña debe tener al menos 6 caracteres.'}, status=400)
+        
+        # Verificar email único
+        if User.objects.filter(email__iexact=email).exists():
+            return JsonResponse({'error': 'Este correo electrónico ya está registrado.'}, status=400)
+        
+        with transaction.atomic():
+            # Generar username único desde el email
+            base_username = email.split('@')[0].replace('.', '_').replace('-', '_')[:30]
+            username = base_username
+            counter = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}_{counter}"
+                counter += 1
+            
+            # Crear el usuario
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=nombre_completo,
+                rol=Usuario.Rol.EMPRESA if rol_raw == 'EMPRESA' else Usuario.Rol.FREELANCER,
+            )
+            
+            display_name = nombre_completo
+            
+            # Crear perfil según el rol
+            if rol_raw == 'EMPRESA':
+                PerfilEmpresa.objects.create(
+                    usuario=user,
+                    nombre_empresa=nombre_empresa,
+                    monto_minimo_compra=60.00,
+                    suscripcion_activa=False,
+                )
+                display_name = nombre_empresa
+            else:  # FREELANCER
+                PerfilFreelance.objects.create(
+                    usuario=user,
+                    esta_calificado=False,
+                )
+            
+            # Crear token de sesión para login automático
+            token_obj = TokenSesion.objects.create(usuario=user)
+        
+        return JsonResponse({
+            'message': 'Cuenta creada exitosamente.',
+            'username': user.username,
+            'email': user.email,
+            'rol': user.rol.lower(),
+            'name': display_name,
+            'token': str(token_obj.token)
+        }, status=201)
+    
+    except Exception as e:
+        return JsonResponse({'error': f'Error al crear la cuenta: {str(e)}'}, status=500)
+
 
 @csrf_exempt
 def api_login(request):
