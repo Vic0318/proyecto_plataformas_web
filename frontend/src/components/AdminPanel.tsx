@@ -23,11 +23,11 @@ export const AdminPanel: React.FC = () => {
         <div className={styles.kpiRow}>
           <div className={styles.kpiBox}>
             <div className={styles.kpiLabel}>Comisión Plataforma (2%)</div>
-            <div className={styles.kpiValuePrimary}>$1,420.50 USD</div>
+            <div className={styles.kpiValuePrimary}>$0.00 USD</div>
           </div>
           <div className={styles.kpiBox}>
             <div className={styles.kpiLabel}>Empresas Suscritas</div>
-            <div className={styles.kpiValueTeal}>24 Activas</div>
+            <div className={styles.kpiValueTeal}>0 Activas</div>
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ export const AdminPanel: React.FC = () => {
                 <div className={styles.itemTitle}>Suscripción Anual ($299/año)</div>
                 <div className={styles.itemDesc}>Acceso a perfiles calificados y analítica avanzadas</div>
               </div>
-              <span className="badge-clean badge-clean-primary">24 Suscriptoras</span>
+              <span className="badge-clean badge-clean-primary">0 Suscriptoras</span>
             </div>
           </div>
         </div>

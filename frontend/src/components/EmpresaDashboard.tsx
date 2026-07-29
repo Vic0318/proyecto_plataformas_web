@@ -47,23 +47,27 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   const [editPrice, setEditPrice] = useState(25.0);
   const [editUnitPack, setEditUnitPack] = useState("");
   const [editStock, setEditStock] = useState(100);
-  const [editImage, setEditImage] = useState("");
-
-  const [editingTest, setEditingTest] = useState<{ id: number; title: string } | null>(null);
+  const [editingTest, setEditingTest] = useState<{ id: number; title: string; passScore: string; questions?: string } | null>(null);
   const [editTestTitle, setEditTestTitle] = useState("");
+  const [editTestPassScore, setEditTestPassScore] = useState("80%");
+  const [editTestQuestions, setEditTestQuestions] = useState("");
+  const [editTestFile, setEditTestFile] = useState<File | null>(null);
+
+  const [showAddTestModal, setShowAddTestModal] = useState<boolean>(false);
+  const [newTestPassScore, setNewTestPassScore] = useState("80%");
+  const [newTestQuestions, setNewTestQuestions] = useState("");
+  const [newTestFile, setNewTestFile] = useState<File | null>(null);
 
   const [confirmDeleteProduct, setConfirmDeleteProduct] = useState<Product | null>(null);
   const [confirmDeleteTest, setConfirmDeleteTest] = useState<{ id: number; title: string } | null>(null);
 
-  const [tests, setTests] = useState([
-    { id: 1, title: "Certificación Manejo de Cadena de Frío", company: "Lácteos del Sur", passScore: "80%" },
-    { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", passScore: "90%" },
+  const [tests, setTests] = useState<{ id: number; title: string; company: string; passScore: string }[]>([
+    { id: 1, title: "Certificación en Manejo de Alimentos", company: "Proveedores Andinos S.A.", passScore: "80%" },
+    { id: 2, title: "Test de Calidad de Productos de Limpieza", company: "Distribuidora del Pacífico", passScore: "90%" },
   ]);
   const [newTestTitle, setNewTestTitle] = useState("");
 
-  const [retryRequests, setRetryRequests] = useState([
-    { id: 101, testId: 2, testTitle: "Test de Conocimiento de Productos Farmacéuticos", freelancer: "Carlos Vendedor Freelance", date: "26/07/2026", status: "Pendiente" }
-  ]);
+  const [retryRequests, setRetryRequests] = useState<{ id: number; testId: number; testTitle: string; freelancer: string; date: string; status: string }[]>([]);
 
   const handleApproveRetry = (reqId: number) => {
     setRetryRequests(prev => prev.map(r => r.id === reqId ? { ...r, status: "Aprobado" } : r));
@@ -132,6 +136,9 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
   const startEditTest = (t: any) => {
     setEditingTest(t);
     setEditTestTitle(t.title);
+    setEditTestPassScore(t.passScore || "80%");
+    setEditTestQuestions(t.questions || "");
+    setEditTestFile(null);
   };
 
   const handleSaveEditTest = async (e: React.FormEvent) => {
@@ -141,15 +148,15 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
       const response = await fetch("http://localhost:8000/api/tests/", {
         method: "PUT",
         headers: getAuthHeaders(),
-        body: JSON.stringify({ id: editingTest.id, title: editTestTitle })
+        body: JSON.stringify({ id: editingTest.id, title: editTestTitle, passScore: editTestPassScore })
       });
       if (response.ok) {
         const result = await response.json();
-        setTests(prev => prev.map(t => t.id === result.id ? { ...t, title: result.title } : t));
+        setTests(prev => prev.map(t => t.id === result.id ? { ...t, title: result.title, passScore: result.passScore || editTestPassScore } : t));
       }
     } catch (err) {
       console.error("Error updating test:", err);
-      setTests(prev => prev.map(t => t.id === editingTest.id ? { ...t, title: editTestTitle } : t));
+      setTests(prev => prev.map(t => t.id === editingTest.id ? { ...t, title: editTestTitle, passScore: editTestPassScore } : t));
     }
     setEditingTest(null);
   };
@@ -200,21 +207,26 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
         headers: getAuthHeaders(),
         body: JSON.stringify({
           title: newTestTitle,
+          passScore: newTestPassScore,
           company: companyName,
           description: "Evaluacion creada desde el Panel de Empresa"
         }),
       });
       if (response.ok) {
         const createdTest = await response.json();
-        setTests(prev => [...prev, { id: createdTest.id, title: createdTest.title, company: createdTest.company, passScore: "85%" }]);
+        setTests(prev => [...prev, { id: createdTest.id, title: createdTest.title, company: createdTest.company, passScore: createdTest.passScore || newTestPassScore }]);
       } else {
-        setTests(prev => [...prev, { id: Date.now(), title: newTestTitle, company: companyName, passScore: "85%" }]);
+        setTests(prev => [...prev, { id: Date.now(), title: newTestTitle, company: companyName, passScore: newTestPassScore }]);
       }
     } catch (err) {
       console.error("Error creating test in backend:", err);
-      setTests(prev => [...prev, { id: Date.now(), title: newTestTitle, company: companyName, passScore: "85%" }]);
+      setTests(prev => [...prev, { id: Date.now(), title: newTestTitle, company: companyName, passScore: newTestPassScore }]);
     }
+    setShowAddTestModal(false);
     setNewTestTitle("");
+    setNewTestPassScore("80%");
+    setNewTestQuestions("");
+    setNewTestFile(null);
   };
 
   const lowStockCount = products.filter((p) => p.stock < 20).length;
@@ -355,16 +367,11 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
           Las empresas que requieren perfiles certificados pueden crear evaluaciones obligatorias aquí.
         </p>
 
-        <form onSubmit={handleCreateTest} className={styles.testForm}>
-          <input
-            type="text"
-            placeholder="Título de la nueva prueba o curso de certificación..."
-            value={newTestTitle}
-            onChange={(e) => setNewTestTitle(e.target.value)}
-            className={styles.testInput}
-          />
-          <button type="submit" className="btn btn-outline">Crear Evaluación</button>
-        </form>
+        <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1rem" }}>
+          <button onClick={() => setShowAddTestModal(true)} className="btn btn-outline" style={{ gap: "6px" }}>
+            <IconPlus size={16} /> Crear Evaluación
+          </button>
+        </div>
 
         <div className={styles.testsGrid}>
           {tests.map((test) => (
@@ -533,15 +540,83 @@ export const EmpresaDashboard: React.FC<EmpresaDashboardProps> = ({
         </div>
       )}
 
+      {/* Add Test Modal */}
+      {showAddTestModal && (
+        <div className={styles.modalOverlay}>
+          <div className="card-clean" style={{ width: "90%", maxWidth: "500px", padding: "2rem", maxHeight: "90vh", overflowY: "auto" }}>
+            <h3 className={styles.modalTitle}>Crear Nueva Evaluación</h3>
+            <form onSubmit={handleCreateTest} className={styles.modalForm}>
+              <div>
+                <label className={styles.fieldLabel}>Título de la Evaluación</label>
+                <input required type="text" value={newTestTitle} onChange={(e) => setNewTestTitle(e.target.value)} className={styles.fieldInput} />
+              </div>
+              <div>
+                <label className={styles.fieldLabel}>Puntaje mínimo requerido</label>
+                <input required type="text" value={newTestPassScore} onChange={(e) => setNewTestPassScore(e.target.value)} className={styles.fieldInput} />
+              </div>
+              <div>
+                <label className={styles.fieldLabel}>Preguntas de la Evaluación (Opcional, una por línea)</label>
+                <textarea
+                  rows={4}
+                  value={newTestQuestions}
+                  onChange={(e) => setNewTestQuestions(e.target.value)}
+                  className={styles.fieldInput}
+                  style={{ resize: "vertical" }}
+                  placeholder="Ej: ¿Cuál es la temperatura ideal de conservación?..."
+                />
+              </div>
+              <div>
+                <label className={styles.fieldLabel}>O subir formato de prueba (PDF/DOCX)</label>
+                <input
+                  type="file"
+                  onChange={(e) => setNewTestFile(e.target.files ? e.target.files[0] : null)}
+                  className={styles.fieldInput}
+                  accept=".pdf,.doc,.docx"
+                  style={{ padding: "0.5rem" }}
+                />
+              </div>
+              <div className={styles.modalBtnRow}>
+                <button type="button" onClick={() => setShowAddTestModal(false)} className="btn btn-outline" style={{ flex: 1 }}>Cancelar</button>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Crear Evaluación</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Edit Test Modal */}
       {editingTest && (
         <div className={styles.modalOverlay}>
-          <div className="card-clean" style={{ width: "90%", maxWidth: "440px", padding: "2rem" }}>
+          <div className="card-clean" style={{ width: "90%", maxWidth: "500px", padding: "2rem", maxHeight: "90vh", overflowY: "auto" }}>
             <h3 className={styles.modalTitle}>Editar Evaluación / Certificación</h3>
             <form onSubmit={handleSaveEditTest} className={styles.modalForm}>
               <div>
                 <label className={styles.fieldLabel}>Título de la Evaluación</label>
                 <input required type="text" value={editTestTitle} onChange={(e) => setEditTestTitle(e.target.value)} className={styles.fieldInput} />
+              </div>
+              <div>
+                <label className={styles.fieldLabel}>Puntaje mínimo requerido</label>
+                <input required type="text" value={editTestPassScore} onChange={(e) => setEditTestPassScore(e.target.value)} className={styles.fieldInput} />
+              </div>
+              <div>
+                <label className={styles.fieldLabel}>Preguntas de la Evaluación</label>
+                <textarea
+                  rows={4}
+                  value={editTestQuestions}
+                  onChange={(e) => setEditTestQuestions(e.target.value)}
+                  className={styles.fieldInput}
+                  style={{ resize: "vertical" }}
+                />
+              </div>
+              <div>
+                <label className={styles.fieldLabel}>Actualizar formato de prueba (PDF/DOCX)</label>
+                <input
+                  type="file"
+                  onChange={(e) => setEditTestFile(e.target.files ? e.target.files[0] : null)}
+                  className={styles.fieldInput}
+                  accept=".pdf,.doc,.docx"
+                  style={{ padding: "0.5rem" }}
+                />
               </div>
               <div className={styles.modalBtnRow}>
                 <button type="button" onClick={() => setEditingTest(null)} className="btn btn-outline" style={{ flex: 1 }}>Cancelar</button>

@@ -95,14 +95,19 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
     return matchesCat && matchesSearch;
   });
 
-  const [freelanceOrders, setFreelanceOrders] = useState([
-    { id: "ORD-9921", client: "Minimarket La Esquina", product: "Aceite Vegetal Superior - Paca x 12", total: 76.00, commission: 7.60, status: "Pendiente Confirmación Entrega", isDelivered: false },
-    { id: "ORD-9844", client: "Bodega Santa Rosa", product: "Paca de Jugos Naturales x 24", total: 104.00, commission: 10.40, status: "Entregado y Liberado", isDelivered: true },
-  ]);
+  const [freelanceOrders, setFreelanceOrders] = useState<{
+    id: string;
+    client: string;
+    product: string;
+    total: number;
+    commission: number;
+    status: string;
+    isDelivered: boolean;
+  }[]>([]);
 
-  const [tests, setTests] = useState([
-    { id: 1, title: "Certificación Manejo de Cadena de Frío", company: "Lácteos del Sur", status: "Aprobado" },
-    { id: 2, title: "Test de Conocimiento de Productos Farmacéuticos", company: "FarmaGlobal", status: "Pendiente" },
+  const [tests, setTests] = useState<{ id: number; title: string; company: string; status: string }[]>([
+    { id: 1, title: "Certificación en Manejo de Alimentos", company: "Proveedores Andinos S.A.", status: "Pendiente" },
+    { id: 2, title: "Test de Calidad de Productos de Limpieza", company: "Distribuidora del Pacífico", status: "Aprobado" },
   ]);
 
   const getAuthHeaders = (): Record<string, string> => {
@@ -310,6 +315,8 @@ export const FreelancePortal: React.FC<FreelancePortalProps> = ({
                 <option value="Abarrotes Don Pepe (Quito)">Abarrotes Don Pepe (Quito)</option>
                 <option value="Minimarket La Esquina (Guayaquil)">Minimarket La Esquina (Guayaquil)</option>
                 <option value="Bodega Santa Rosa (Cuenca)">Bodega Santa Rosa (Cuenca)</option>
+                <option value="Tienda El Progreso (Ambato)">Tienda El Progreso (Ambato)</option>
+                <option value="Despensa Familiar Los Andes (Riobamba)">Despensa Familiar Los Andes (Riobamba)</option>
               </select>
             </div>
             <div>

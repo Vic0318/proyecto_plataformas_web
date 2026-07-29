@@ -12,15 +12,13 @@ interface LoginViewProps {
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLogin, theme, onToggleTheme, onOpenRegister }) => {
   const [selectedRole, setSelectedRole] = useState<"tendero" | "empresa" | "freelance" | "admin">("tendero");
-  const [email, setEmail] = useState("tendero@isben.com");
-  const [password, setPassword] = useState("••••••••");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleRoleSelect = (role: "tendero" | "empresa" | "freelance" | "admin") => {
     setSelectedRole(role);
-    if (role === "tendero") setEmail("donpepe@tiendita.com");
-    if (role === "empresa") setEmail("contacto@isbenproveedores.com");
-    if (role === "freelance") setEmail("carlos.vendedor@freelance.com");
-    if (role === "admin") setEmail("admin@isbenplatform.com");
+    setEmail("");
+    setPassword("");
   };
 
   const handleSubmit = (e: React.FormEvent) => {

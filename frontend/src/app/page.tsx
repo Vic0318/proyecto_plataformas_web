@@ -12,70 +12,7 @@ import { AdminPanel } from "@/components/AdminPanel";
 import { IconShoppingCart, IconShieldCheck, IconPackage } from "@/components/Icons";
 import styles from "./page.module.css";
 
-const initialProducts: Product[] = [
-  {
-    id: "prod-1",
-    name: "Aceite Vegetal D'Oliva 1L",
-    category: "Abarrotes",
-    pricePerUnit: 34.50,
-    unitPackName: "Paca de 12 botellas (1L c/u)",
-    stock: 85,
-    image: "/groceries_pack.png",
-    companyName: "Distribuidora Mayorista ISBEN",
-  },
-  {
-    id: "prod-2",
-    name: "Arroz Grano Largo Superior",
-    category: "Abarrotes",
-    pricePerUnit: 28.00,
-    unitPackName: "Saco de 50 kg",
-    stock: 12,
-    image: "/groceries_pack.png",
-    companyName: "Distribuidora Mayorista ISBEN",
-    isLowStock: true,
-  },
-  {
-    id: "prod-3",
-    name: "Pack Jugos Frutales Surtidos",
-    category: "Bebidas",
-    pricePerUnit: 18.50,
-    unitPackName: "Paca termoencogible x 24 unidades",
-    stock: 150,
-    image: "/beverages_pack.png",
-    companyName: "Bebidas del Ecuador S.A.",
-  },
-  {
-    id: "prod-4",
-    name: "Agua Mineral Natural 500ml",
-    category: "Bebidas",
-    pricePerUnit: 12.00,
-    unitPackName: "Paca x 24 botellas",
-    stock: 200,
-    image: "/beverages_pack.png",
-    companyName: "Bebidas del Ecuador S.A.",
-  },
-  {
-    id: "prod-5",
-    name: "Detergente Líquido Multiusos",
-    category: "Limpieza",
-    pricePerUnit: 42.00,
-    unitPackName: "Caja de 6 galones (3.78L)",
-    stock: 40,
-    image: "/cleaning_pack.png",
-    companyName: "Limpieza & Hogar Pro",
-  },
-  {
-    id: "prod-6",
-    name: "Jabón Desinfectante Antibacterial",
-    category: "Limpieza",
-    pricePerUnit: 22.50,
-    unitPackName: "Caja x 36 pastillas",
-    stock: 8,
-    image: "/cleaning_pack.png",
-    companyName: "Limpieza & Hogar Pro",
-    isLowStock: true,
-  },
-];
+const initialProducts: Product[] = [];
 
 export default function Home() {
   const [viewState, setViewState] = useState<"landing" | "portal">("landing");
@@ -83,7 +20,7 @@ export default function Home() {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState<boolean>(false);
 
   const [currentRole, setCurrentRole] = useState<"tendero" | "empresa" | "freelance" | "admin">("tendero");
-  const [username, setUsername] = useState<string>("Abarrotes Don Pepe");
+  const [username, setUsername] = useState<string>("");
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [isSessionActive, setIsSessionActive] = useState<boolean>(false);
 
@@ -94,11 +31,7 @@ export default function Home() {
   const [depositPercent, setDepositPercent] = useState<number>(100);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
-  const [historyOrders, setHistoryOrders] = useState<Array<{ id: string; date: string; status: string; total: number }>>([
-    { id: "#1024", date: "26/07/2026", status: "Pagado", total: 74.00 },
-    { id: "#1023", date: "25/07/2026", status: "Entregado", total: 128.50 },
-    { id: "#1022", date: "24/07/2026", status: "Entregado", total: 60.00 }
-  ]);
+  const [historyOrders, setHistoryOrders] = useState<Array<{ id: string; date: string; status: string; total: number }>>([]);
   const [checkoutResult, setCheckoutResult] = useState<{
     success: boolean;
     isRealDb?: boolean;
@@ -203,10 +136,10 @@ export default function Home() {
 
   const handleSelectRoleDemo = (role: "tendero" | "empresa" | "freelance" | "admin") => {
     let name = "Usuario ISBEN";
-    if (role === "tendero") name = "Abarrotes Don Pepe";
-    if (role === "empresa") name = "Distribuidora Mayorista ISBEN";
-    if (role === "freelance") name = "Carlos Vendedor Freelance";
-    if (role === "admin") name = "Administrador Sistema";
+    if (role === "tendero") name = "Tienda Demo";
+    if (role === "empresa") name = "Empresa Demo";
+    if (role === "freelance") name = "Freelancer Demo";
+    if (role === "admin") name = "Administrador Demo";
 
     setCurrentRole(role);
     setUsername(name);
