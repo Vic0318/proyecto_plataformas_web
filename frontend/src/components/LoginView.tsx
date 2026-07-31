@@ -14,22 +14,37 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, theme, onToggleTh
   const [selectedRole, setSelectedRole] = useState<"tendero" | "empresa" | "freelance" | "admin">("tendero");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleRoleSelect = (role: "tendero" | "empresa" | "freelance" | "admin") => {
     setSelectedRole(role);
     setEmail("");
     setPassword("");
+    setErrorMsg(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let name = "Usuario ISBEN";
-    if (selectedRole === "tendero") name = "Abarrotes Don Pepe";
-    if (selectedRole === "empresa") name = "Distribuidora Mayorista ISBEN";
-    if (selectedRole === "freelance") name = "Carlos Vendedor Freelance";
-    if (selectedRole === "admin") name = "Administrador Sistema";
-
-    onLogin(selectedRole, name);
+    setErrorMsg(null);
+    try {
+      const response = await fetch("http://localhost:8000/api/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: selectedRole })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.token) localStorage.setItem("isben_token", data.token);
+        
+        onLogin(data.role || selectedRole, data.name || "Usuario ISBEN", data.token);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        setErrorMsg(errData.error || "Credenciales incorrectas");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setErrorMsg("Error de conexión con el servidor");
+    }
   };
 
   return (
@@ -101,7 +116,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin, theme, onToggleTh
             />
           </div>
 
-          <button type="submit" className={`btn btn-primary ${styles.submitBtn}`}>
+          {errorMsg && <div className={styles.errorText} style={{ color: "var(--danger)", fontSize: "0.85rem", marginTop: "0.5rem", textAlign: "center" }}>{errorMsg}</div>}
+
+          <button type="submit" className="btn btn-primary" style={{ marginTop: "1rem" }}>
             🔑 Ingresar a Mi Portal ({selectedRole === "tendero" ? "Tendero" : selectedRole === "empresa" ? "Empresa" : selectedRole === "freelance" ? "Freelancer" : "Admin"})
           </button>
         </form>

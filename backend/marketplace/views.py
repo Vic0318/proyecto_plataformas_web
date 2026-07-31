@@ -646,3 +646,13 @@ def api_logout(request):
         if deleted_count > 0:
             return JsonResponse({'message': 'Sesion cerrada con exito. Token invalidado.'})
     return JsonResponse({'message': 'Sesion cerrada.'})
+
+@csrf_exempt
+def api_stats(request):
+    """Devuelve estadisticas generales de la plataforma."""
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Metodo no permitido'}, status=405)
+    empresas_count = User.objects.filter(rol='empresa').count()
+    return JsonResponse({
+        'empresas_suscritas': empresas_count
+    })

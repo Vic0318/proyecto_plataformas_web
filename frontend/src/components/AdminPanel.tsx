@@ -1,10 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { IconShieldCheck, IconCheck } from "@/components/Icons";
 import styles from "./AdminPanel.module.css";
 
 export const AdminPanel: React.FC = () => {
+  const [empresasCount, setEmpresasCount] = useState<number>(0);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/stats/")
+      .then(res => res.json())
+      .then(data => setEmpresasCount(data.empresas_suscritas || 0))
+      .catch(err => console.error("Error fetching stats:", err));
+  }, []);
   return (
     <div className={styles.wrapper}>
       {/* Top Banner */}
@@ -27,7 +35,7 @@ export const AdminPanel: React.FC = () => {
           </div>
           <div className={styles.kpiBox}>
             <div className={styles.kpiLabel}>Empresas Suscritas</div>
-            <div className={styles.kpiValueTeal}>0 Activas</div>
+            <div className={styles.kpiValueTeal}>{empresasCount} Activas</div>
           </div>
         </div>
       </div>
@@ -56,7 +64,7 @@ export const AdminPanel: React.FC = () => {
                 <div className={styles.itemTitle}>Suscripción Anual ($299/año)</div>
                 <div className={styles.itemDesc}>Acceso a perfiles calificados y analítica avanzadas</div>
               </div>
-              <span className="badge-clean badge-clean-primary">0 Suscriptoras</span>
+              <span className="badge-clean badge-clean-primary">{empresasCount} Suscriptoras</span>
             </div>
           </div>
         </div>

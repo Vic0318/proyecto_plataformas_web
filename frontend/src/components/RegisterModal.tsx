@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import styles from "./RegisterModal.module.css";
 
-type RegisterRole = "EMPRESA" | "FREELANCER";
+type RegisterRole = "EMPRESA" | "FREELANCER" | "TENDERO";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -145,6 +145,13 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
       color: "var(--primary)",
       glow: "var(--primary-glow)",
     },
+    TENDERO: {
+      icon: "T",
+      label: "Tendero (Cliente)",
+      description: "Abre tu cuenta de tendero para abastecer tu negocio comprando a crédito.",
+      color: "var(--teal)",
+      glow: "rgba(20, 184, 166, 0.12)",
+    }
   };
 
   return (
@@ -187,7 +194,7 @@ export const RegisterModal: React.FC<RegisterModalProps> = ({
           <div>
             <p className={styles.roleTypeLabel}>Tipo de cuenta</p>
             <div className={styles.roleList}>
-              {(["EMPRESA", "FREELANCER"] as RegisterRole[]).map((role) => {
+              {(["EMPRESA", "FREELANCER", "TENDERO"] as RegisterRole[]).map((role) => {
                 const cfg = roleConfig[role];
                 const isSelected = selectedRole === role;
                 return (
